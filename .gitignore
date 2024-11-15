@@ -1,3 +1,9 @@
+# Python
+venv
+src-django/src/static/assets
+src-django/src/static/.vite
+*.egg-info
+
 # Logs
 logs
 *.log
