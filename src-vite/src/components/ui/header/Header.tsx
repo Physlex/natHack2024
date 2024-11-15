@@ -3,7 +3,7 @@
  */
 
 
-import { default as Navbar, NavbarButtonElement } from './Navbar';
+import { default as Navbar, NavbarButton } from './Navbar';
 
 
 /**
@@ -13,7 +13,8 @@ export default function Header(): JSX.Element {
     return (
         <div id="header">
             <Navbar>
-                <NavbarButtonElement label="Studio" to="/studio" />
+                <NavbarButton label="Studio" to="/studio" />
+                <NavbarButton label="Diffuser" to="/diffuser" />
             </Navbar>
         </div>
     );

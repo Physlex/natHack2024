@@ -3,15 +3,15 @@
  */
 
 
-import { AppBar, Box, Button, Toolbar, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { AppBar, Link, Box, Button, Toolbar, Typography } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 
 const navBarLinkStyles = {
     display: { xs: 'none', md: 'flex' },
     fontFamily: 'monospace',
     fontWeight: 700,
-    color: 'inherit',
+    color: 'white',
     textDecoration: 'none',
 };
 
@@ -21,21 +21,21 @@ const navBarLinkStyles = {
  * @param { string } to The link associated with the label
  * @param { boolean } hidden Whether or not this particular element is rendered
  */
-type NavbarButtonElementParams = {
+type NavbarButtonParams = {
     label: string;
     to: string;
     isHidden?: boolean;
 }
 
 /**
- * @param { NavbarButtonElementParams } params See type definition for docs.
+ * @param { NavbarButtonParams } params See type definition for docs.
  * @returns A navbar label element.
  */
-export function NavbarButtonElement({
+export function NavbarButton({
     label,
     to,
     isHidden
-}: NavbarButtonElementParams): JSX.Element {
+}: NavbarButtonParams): JSX.Element {
     if (isHidden === undefined) {
         isHidden = false;
     }
@@ -44,8 +44,7 @@ export function NavbarButtonElement({
         <>
             {!isHidden &&
             <Button color="inherit">
-                <Link
-                    to={to}>
+                <Link component={RouterLink} to={to}>
                     <Typography
                         variant="h6"
                         noWrap
