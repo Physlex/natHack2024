@@ -6,7 +6,14 @@ import react from '@vitejs/plugin-react'
  * effectively just some json.
  */
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react({
+      jsxImportSource: "@emotion/react",
+      babel: {
+        plugins: ["@emotion/babel-plugin"],
+      },
+    })
+  ],
   build: {
     outDir: "../src-django/src/static",
     emptyOutDir: true,

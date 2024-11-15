@@ -12,6 +12,7 @@ import {
 
 import { Studio, Diffuser, Login } from './pages';
 import { Header, Footer } from './components/ui';
+import { CssBaseline } from '@mui/material';
 
 
 /**
@@ -20,6 +21,7 @@ import { Header, Footer } from './components/ui';
 export default function Layout(): JSX.Element {
     return (
         <div>
+            <CssBaseline />
             <Header />
             <Outlet />
             <Footer />
