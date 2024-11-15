@@ -75,7 +75,7 @@ export default function Navbar({ children }: NavbarParams): JSX.Element {
                     <Typography
                         variant="h6"
                         noWrap
-                        sx={{flexGrow: 1}}
+                        sx={{flexGrow: 1, ...navBarLinkStyles}}
                         component="div">
                         Dream Diffusion
                     </Typography>
