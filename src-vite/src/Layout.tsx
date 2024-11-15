@@ -11,6 +11,7 @@ import {
 } from 'react-router-dom';
 
 import { Studio, Diffuser } from './pages';
+import { Header, Footer } from './components/ui';
 
 
 /**
@@ -18,9 +19,11 @@ import { Studio, Diffuser } from './pages';
  */
 export default function Layout(): JSX.Element {
     return (
-        <Header />
-        <Outlet />
-        <Footer />
+        <div>
+            <Header />
+            <Outlet />
+            <Footer />
+        </div>
     );
 }
 
@@ -39,6 +42,4 @@ export const layoutRouter = createBrowserRouter(createRoutesFromElements(
         v7_relativeSplatPath: true,
         v7_skipActionErrorRevalidation: true,
     },
-} 
-);
-
+});
