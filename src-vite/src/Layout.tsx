@@ -20,7 +20,7 @@ import { CssBaseline } from '@mui/material';
  */
 export default function Layout(): JSX.Element {
     return (
-        <div>
+        <div id="app">
             <CssBaseline />
             <Header />
             <Outlet />

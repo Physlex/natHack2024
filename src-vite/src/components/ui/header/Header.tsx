@@ -3,13 +3,18 @@
  */
 
 
+import { default as Navbar, NavbarButtonElement } from './Navbar';
+
+
 /**
  * @return Header component.
  */
 export default function Header(): JSX.Element {
     return (
         <div id="header">
-            TODO: Implement a navbar
+            <Navbar>
+                <NavbarButtonElement label="Studio" to="/studio" />
+            </Navbar>
         </div>
     );
 }
