@@ -7,6 +7,7 @@ import { AppBar, Link, Box, Button, Toolbar, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 
 
+// What is said on the tin
 const navBarLinkStyles = {
     display: { xs: 'none', md: 'flex' },
     fontFamily: 'monospace',
@@ -14,7 +15,6 @@ const navBarLinkStyles = {
     color: 'white',
     textDecoration: 'none',
 };
-
 
 /**
  * @param { string } label The label of the element
@@ -61,13 +61,14 @@ export function NavbarButton({
 }
 
 type NavbarParams = {
+    title: string;
     children: React.ReactNode;
 }
 
 /**
  * @returns Application navbar.
  */
-export default function Navbar({ children }: NavbarParams): JSX.Element {
+export default function Navbar({ title, children }: NavbarParams): JSX.Element {
     return (
         <Box sx={{flexGrow: 1}}>
             <AppBar position="static">
@@ -77,7 +78,7 @@ export default function Navbar({ children }: NavbarParams): JSX.Element {
                         noWrap
                         sx={{flexGrow: 1, ...navBarLinkStyles}}
                         component="div">
-                        Dream Diffusion
+                        {title}
                     </Typography>
                     {children}
                 </Toolbar>

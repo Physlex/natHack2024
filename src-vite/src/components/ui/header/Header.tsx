@@ -12,7 +12,7 @@ import { default as Navbar, NavbarButton } from './Navbar';
 export default function Header(): JSX.Element {
     return (
         <div id="header">
-            <Navbar>
+            <Navbar title="Dream Diffusion">
                 <NavbarButton label="Studio" to="/studio" />
                 <NavbarButton label="Diffuser" to="/diffuser" />
             </Navbar>
