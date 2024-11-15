@@ -10,7 +10,7 @@ import {
     createRoutesFromElements
 } from 'react-router-dom';
 
-import { Studio, Diffuser } from './pages';
+import { Studio, Diffuser, Login } from './pages';
 import { Header, Footer } from './components/ui';
 
 
@@ -30,6 +30,7 @@ export default function Layout(): JSX.Element {
 // Browser router to be used in the application
 export const layoutRouter = createBrowserRouter(createRoutesFromElements(
     <Route element={<Layout />} >
+        <Route path="/" element={<Login />} />
         <Route path="/studio" element={<Studio />} />
         <Route path="/diffuser" element={<Diffuser />} />
     </Route>
