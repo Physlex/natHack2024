@@ -15,6 +15,6 @@ class CytonDaisy:
     def get_data(self):
         return self.board.get_board_data(num_samples=None, preset=self.board_preset)
     
-    def __exit__(self,  exception_type, exception_value, exception_traceback):
+    def __exit__(self, exception_type, exception_value, exception_traceback):
         self.board.stop_stream()
         self.board.release_session()
