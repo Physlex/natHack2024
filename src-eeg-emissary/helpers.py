@@ -4,6 +4,23 @@ import numpy as np
 import scipy.signal
 from scipy.fft import fft, ifft
 from scipy.interpolate import CubicSpline
+import glob
+from moviepy.editor import VideoFileClip, concatenate_videoclips
+
+def concatenate_videos(video_files_path):
+
+    video_file_list = glob.glob(f"{video_files_path}/*.mp4")
+
+    loaded_video_list = []
+    print(f'videos: {video_file_list}')
+
+    for video in video_file_list:
+        print(f"Adding video file:{video}")
+        loaded_video_list.append(VideoFileClip(video))
+
+    final_clip = concatenate_videoclips(loaded_video_list)
+
+    final_clip.write_videofile(f"test.mp4")
 
 def interpolateData(data_path, interpolation_type='fourier', num_points=500):
     
@@ -77,7 +94,8 @@ def interpolateData(data_path, interpolation_type='fourier', num_points=500):
 def main():
     # asyncio.run(start_srv())
     interpolation_type = 'cubic'
-    interpolateData(interpolation_type, 500)
+    # interpolateData(interpolation_type, 500)
+    concatenate_videos('./videos')
 
 if __name__ == "__main__":
     main()
