@@ -23,6 +23,7 @@ class ImageDownloadView(APIView):
         image = open(imageKlass.url.path, "rb")
         return FileResponse(image, as_attachment=True)
 
+
 class ImageReferenceView(APIView):
     """
     Returns an image url we can use as a reference to render.
