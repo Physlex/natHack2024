@@ -56,7 +56,7 @@ class EEGBucket {
 
     // Sends the currently collected pool of data to the backend
     async send(): Promise<number> {
-        const response = await fetch("/api/eeg/upload/", {
+        const response = await fetch("/api/eeg/", {
             method: "POST",
             body: JSON.stringify(this.pool)
         });
