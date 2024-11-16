@@ -5,6 +5,9 @@ src-django/src/static/assets
 src-django/src/static/.vite
 *.egg-info
 db.sqlite3
+*.jpg
+*.mp4
+*.mp3
 
 # Logs
 logs
