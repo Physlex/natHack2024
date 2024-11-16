@@ -1,7 +1,8 @@
 from brainflow import BrainFlowInputParams, BoardShim, BoardIds, BrainFlowPresets
 
+
 class CytonDaisy:
-    def __init__(self, serial_port = "COM17"):
+    def __init__(self, serial_port="COM17"):
         self.params = BrainFlowInputParams()
         self.params.serial_port = serial_port
         self.board_preset = BrainFlowPresets.DEFAULT_PRESET
@@ -17,7 +18,7 @@ class CytonDaisy:
 
     def get_data(self):
         return self.board.get_board_data(num_samples=None, preset=self.board_preset)
-    
+
     def __exit__(self, exception_type, exception_value, exception_traceback):
         self.board.stop_stream()
         self.board.release_session()
