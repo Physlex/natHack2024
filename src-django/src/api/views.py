@@ -39,14 +39,3 @@ class DiffuserGenerateVideoView(APIView):
 
     def post(request: Request) -> Response:
         return Response(status=status.HTTP_201_CREATED)
-
-class DiffuserDownloadVideoView(APIView):
-
-    def get(request: Request) -> FileResponse:
-
-        # TODO: GENERATE FILE NAME FROM YOUR POST API RESPONSE
-        filename = ""
-        response = FileResponse(open(f"/videos/{filename}", 'rb'), as_attachment=True)
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
-
-        return response
