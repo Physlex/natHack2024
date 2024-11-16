@@ -5,7 +5,7 @@
 
 import { Box } from '@mui/material';
 import Viewport from '../../components/ui/viewport/Viewport';
-import { YTURLForm } from '../../components/forms';
+import { URLForm } from '../../components/forms';
 import { useState } from 'react';
 
 
@@ -13,7 +13,11 @@ import { useState } from 'react';
  * @param viewportUrl Youtube url assigned to the viewport on render.
  */
 type StudioProps = {
-    viewportUrl: string;
+    viewport: null | JSX.Element;
+}
+
+const startEEGStream = async () => {
+    // TODO: The websocket here
 }
 
 /**
@@ -21,21 +25,25 @@ type StudioProps = {
  */
 export default function Studio(): JSX.Element {
     const [studioState, setStudioState] = useState({
-        viewportUrl: ""
+        viewport: null
     } as StudioProps);
 
     // Save the url of the url form
     const saveUrl = async (url?: string) => {
-        if (url === undefined) {
-            throw new Error("Contact the developers, the youtube url form is broken");
+        if (url === undefined || url === null) {
+            console.info("Invalid url submitted");
+            return;
         }
-        setStudioState({...studioState, viewportUrl: url});
+        setStudioState({
+            ...studioState,
+            viewport: <Viewport url={url} onPlay={startEEGStream} />
+        });
     }
 
     return (
         <Box id="studio" component="div">
-            <YTURLForm label={"Video URL"} onSubmit={saveUrl}/>
-            <Viewport url={studioState.viewportUrl} />
+            <URLForm label={"Video URL"} onSubmit={saveUrl}/>
+            {studioState.viewport}
         </Box>
     );
 }

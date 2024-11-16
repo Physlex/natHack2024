@@ -11,7 +11,7 @@ import React, { useState } from 'react';
  * @param label The associated form label
  * @param onSubmit Event listener to allow parent components to use the url on submission.
  */
-type YTURLFormParams = {
+type URLFormParams = {
     label: string;
     onSubmit: (url?: string) => void;
 }
@@ -19,21 +19,22 @@ type YTURLFormParams = {
 /**
  * The properties associated with a yt url form state.
  */
-type YTURLProps = {
+type URLProps = {
     url: string;
 }
 
 /**
  * @returns The youtube url form.
  */
-export default function YTURLForm({ label, onSubmit }: YTURLFormParams): JSX.Element {
+export default function URLForm({ label, onSubmit }: URLFormParams): JSX.Element {
     const [urlFormState, setUrlFormState] = useState({
         url: ""
-    } as YTURLProps);
+    } as URLProps);
 
     // Forwards submission to the parent element, allowing the parent access to the child
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        console.info("Submitted url: ", urlFormState.url);
         onSubmit(urlFormState.url);
     }
 

@@ -3,4 +3,4 @@
  */
 
 
-export { default as YTURLForm } from './yturlform/YTURLForm';
+export { default as URLForm } from './urlform/URLForm';
