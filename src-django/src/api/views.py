@@ -13,9 +13,9 @@ from . import models
 
 class EEGModelReadView(APIView):
 
-    def get(request: Request, id: int) -> Response:
+    def get(self, request: Request, eeg_id: int) -> Response:
 
-        eeg_model_klass = get_object_or_404(models.EEGModel, id=id)
+        eeg_model_klass = get_object_or_404(models.EEGModel, id=eeg_id)
         eeg_model_serializer = serializers.EEGModelSerializer(eeg_model_klass)
         if eeg_model_serializer.is_valid():
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -25,7 +25,7 @@ class EEGModelReadView(APIView):
 
 class EEGModelCreateView(APIView):
 
-    def post(request: Request) -> Response:
+    def post(self, request: Request) -> Response:
 
         eeg_model_serializer = serializers.EEGModelSerializer(data=request.data)
         if eeg_model_serializer.is_valid():
@@ -37,5 +37,5 @@ class EEGModelCreateView(APIView):
 
 class DiffuserGenerateVideoView(APIView):
 
-    def post(request: Request) -> Response:
+    def post(self, request: Request) -> Response:
         return Response(status=status.HTTP_201_CREATED)
