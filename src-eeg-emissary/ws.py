@@ -1,8 +1,10 @@
 from websockets.asyncio.server import serve, ServerConnection
+from websockets.exceptions import ConnectionClosedError
 from openbci import CytonDaisy
 import asyncio
 import json
 from dataclasses import dataclass
+import dataclasses
 from typing import *
 
 @dataclass
@@ -14,66 +16,71 @@ class RWs_InitComms:
 class RWs_TermComms:
     code = "TERM"
 
-# List of Event Type, Onset, Duration
-TimestampData = List[Tuple[int, float, float]]
-
-@dataclass
-class RWs_Timestamps:
-    code = "TIMESTAMPS"
-    data: TimestampData
-
-EEGData = List[float]
+EEGData = List[List[float]]
 
 @dataclass
 class EWs_EmitLatest:
     code = "EMISSION"
-    chs: int # channels
+    nchs: int # channels
     n: int # number of samples
+    hz: float # sampling rate
     data: EEGData # chs x n array of float
 
-RecvWSMsgs = Union[RWs_InitComms, RWs_Timestamps, RWs_TermComms]
+RecvWSMsgs = Union[RWs_InitComms, RWs_TermComms]
 EmitWSMsgs = Union[EWs_EmitLatest]
 
-def interpret_msg(msg) -> RecvWSMsgs:
-    msg_dict: RecvWSMsgs = json.loads(msg)
-    res: RecvWSMsgs = None
 
-    if msg_dict['code'] == "INIT":
-        ivl = int(msg_dict['ivl'])
-        res = RWs_InitComms(ivl=ivl)
-    elif msg_dict['code'] == "TIMESTAMPS":
-        data: TimestampData = map(lambda ts: (int(ts[0]), float(ts[1]), float(ts[2])), msg_dict['data'])
-        res = RWs_Timestamps(data=list(data))
-    elif msg_dict['code'] == "TERM":
-        res = RWs_TermComms()
 
-    return res
+class WsEEGAsyncHandler:
+    def __init__(self, board: CytonDaisy):
+        self.board = board
+        self.ivl: int
+        self.emitting = False
 
-async def handler(ws: ServerConnection):
-    try:
-        while True:
-            message = interpret_msg(await ws.recv())
-            if isinstance(message, RWs_InitComms):
-                # start colecting data
-                pass
-            elif isinstance(message, RWs_Timestamps):
-                # log timestamps, use for emissions
-                pass
-            elif isinstance(message, RWs_TermComms):
-                # stop collecting data
-                pass
-            print(message)
-    except ws.ConnectionClosed:
-        pass
-    except Exception as e:
-        print(e)
+    @classmethod
+    def interpret_msg(_, msg) -> RecvWSMsgs:
+        msg_dict: RecvWSMsgs = json.loads(msg)
+        res: RecvWSMsgs = None
+
+        if msg_dict['code'] == "INIT":
+            ivl = int(msg_dict['ivl'])
+            res = RWs_InitComms(ivl=ivl)
+        elif msg_dict['code'] == "TERM":
+            res = RWs_TermComms()
+
+        return res
+    
+    async def emit_eeg(self, ws: ServerConnection):
+        while self.emitting:
+            samp = self.board.get_data()
+            print(samp.size, self.board.chs)
+            msg = EWs_EmitLatest(nchs=len(self.board.chs), n=len(samp.size), hz=self.board.hz, data=samp.tolist())
+            await ws.send(json.dumps(dataclasses.asdict(msg)))
+            await asyncio.sleep(self.ivl/1000)
+
+    async def handler(self, ws: ServerConnection):
+        try:
+            while True:
+                message = WsEEGAsyncHandler.interpret_msg(await ws.recv())
+                if isinstance(message, RWs_InitComms):
+                    # start colecting data
+                    self.ivl = message.ivl
+                    self.emitting = True
+                    await self.emit_eeg(ws)
+                elif isinstance(message, RWs_TermComms):
+                    # stop collecting data
+                    self.emitting = False
+        except ConnectionClosedError:
+            pass
+        except Exception as e:
+            print(e.with_traceback(None))
 
 async def start_srv():
-    async with serve(handler, "", 8001):
-        await asyncio.get_running_loop().create_future()
+    with CytonDaisy("COM17") as board:
+        handler_cls = WsEEGAsyncHandler(board)
+        async with serve(handler_cls.handler, "", 8001, max_size=2**30):
+            print("Starting EEG Emissary...")
+            await asyncio.get_running_loop().create_future()
 
 if __name__ == "__main__":
     asyncio.run(start_srv())
-    with CytonDaisy("COM17") as board:
-        print(board.board.is_prepared())
-        print("dssdf", str(board.get_data()))

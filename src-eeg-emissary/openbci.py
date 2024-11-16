@@ -7,6 +7,9 @@ class CytonDaisy:
         self.board_preset = BrainFlowPresets.DEFAULT_PRESET
         self.board: BoardShim = BoardShim(BoardIds.CYTON_DAISY_BOARD, self.params)
 
+        self.chs = self.board.get_exg_channels(BoardIds.CYTON_DAISY_BOARD)
+        self.hz = self.board.get_sampling_rate(BoardIds.CYTON_DAISY_BOARD)
+
     def __enter__(self):
         self.board.prepare_session()
         self.board.start_stream()
