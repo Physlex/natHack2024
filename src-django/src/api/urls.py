@@ -11,12 +11,12 @@ urlpatterns = [
     path(
         "eeg/<int:eeg_id>",
         views.EEGModelReadView.as_view(),
-        name="EEG Download Endpoint",
+        name="EEG Read Endpoint",
     ),
     path(
         "eeg",
         views.EEGModelCreateView.as_view(),
-        name="EEG Creation Endpoint"
+        name="EEG Create Endpoint"
     ),
     # DIFFUSER
     path(
