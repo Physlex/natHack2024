@@ -54,7 +54,7 @@ class WsEEGAsyncHandler:
         while self.emitting:
             samp = self.board.get_data()
             print(samp.size, self.board.chs)
-            msg = EWs_EmitLatest(nchs=len(self.board.chs), n=len(samp.size), hz=self.board.hz, data=samp.tolist())
+            msg = EWs_EmitLatest(nchs=len(self.board.chs), n=samp.size, hz=self.board.hz, data=samp.tolist())
             await ws.send(json.dumps(dataclasses.asdict(msg)))
             await asyncio.sleep(self.ivl/1000)
 
