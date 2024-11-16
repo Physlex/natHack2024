@@ -60,7 +60,7 @@ class EEGBucket {
             method: "POST",
             body: JSON.stringify(this.pool)
         });
-        
+
         if (response.status >= 400) {
             console.error(`Could not send pool data. Reason: ${response.status}`);
         } else {
