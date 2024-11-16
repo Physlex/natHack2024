@@ -18,19 +18,18 @@ class ImageDownloadView(APIView):
     Returns an image as a file for a user to download.
     """
 
-    def get(request: Request, image_id: int) -> FileResponse:
-        imageKlass = get_object_or_404(models.Image, id=image_id)
+    def get(request: Request, pathname: str) -> FileResponse:
+        imageKlass = get_object_or_404(models.Image, url=pathname)
         image = open(imageKlass.url.path, "rb")
         return FileResponse(image, as_attachment=True)
-
 
 class ImageReferenceView(APIView):
     """
     Returns an image url we can use as a reference to render.
     """
 
-    def get(request: Request, image_id: int) -> Response:
-        imageKlass = get_object_or_404(models.Image, id=image_id)
+    def get(request: Request, pathname: str) -> Response:
+        imageKlass = get_object_or_404(models.Image, url=pathname)
         imageData = serializers.ImageSerializer(imageKlass)
         if imageData.is_valid():
             return Response(data=imageData, status=status.HTTP_200_OK)
