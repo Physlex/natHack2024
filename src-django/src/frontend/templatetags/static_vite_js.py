@@ -15,6 +15,7 @@ BASE_DIR = settings.BASE_DIR
 
 ### DJANGO TAG IMPL ######################################################################
 
+
 def static_vite_js_impl() -> str | None:
     """
     Returns the cache-busted css names from the django manifest
@@ -24,15 +25,18 @@ def static_vite_js_impl() -> str | None:
     try:
         with open(manifest_path) as manifest_file:
             manifest_json = json.load(manifest_file)
-            js_hotswap = f"{settings.STATIC_URL}" + manifest_json["src/main.tsx"]["file"]
+            js_hotswap = (
+                f"{settings.STATIC_URL}" + manifest_json["src/main.tsx"]["file"]
+            )
             return js_hotswap
-    except(OSError):
+    except OSError:
         print(f"Error: {manifest_path} could not be found")
 
     return None
 
 
 ### DJANGO TAG CONNECTION ################################################################
+
 
 @register.simple_tag
 def static_vite_js() -> str:

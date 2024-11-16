@@ -2,7 +2,6 @@
 Serializers for storage media objects.
 """
 
-
 from rest_framework import serializers
 from . import models
 
