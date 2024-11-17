@@ -9,20 +9,20 @@ from . import models
 class EEGSampleSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.EEGSample
-        fields = ["id", "has_event", "data"]
+        fields = "__all__"
 
 
-class EEGFrameSerializer(serializers.ModelSerializer):
+class EEGChannelSerializers(serializers.ModelSerializer):
     samples = EEGSampleSerializer(many=True)
 
     class Meta:
-        model = models.EEGFrame
-        fields = ["sample_rate"]
+        model = models.EEGChannel
+        fields = "__all__"
 
 
 class EEGModelSerializer(serializers.ModelSerializer):
-    frames = EEGFrameSerializer(many=True)
+    frames = EEGChannelSerializers(many=True)
 
     class Meta:
         model = models.EEGModel
-        fields = ["id", "name"]
+        fields = "__all__"
