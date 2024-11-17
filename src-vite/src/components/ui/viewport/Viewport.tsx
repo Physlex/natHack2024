@@ -130,6 +130,16 @@ export default function Viewport({ url, onPlay, onPause }: ViewportParams): JSX.
         return (() => {window.removeEventListener("resize", handleSizing)});
     }, [url]);
 
+    const handlePlay = async (event: any) => {
+        event.target.playVideo();
+        onPlay();
+    };
+
+    const handlePause = async (event: any) => {
+        event.target.pauseVideo();
+        onPause();
+    }
+
     return (
         <Box 
             className="viewport"
@@ -139,8 +149,8 @@ export default function Viewport({ url, onPlay, onPause }: ViewportParams): JSX.
                 videoId={`${viewportState.videoID}`}
                 opts={viewportState.opts}
                 onReady={onReady}
-                onPlay={onPlay}
-                onPause={onPause}
+                onPlay={handlePlay}
+                onPause={handlePause}
                 >
             </Youtube>
         </Box>
