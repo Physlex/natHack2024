@@ -138,6 +138,8 @@ export default function Studio(): JSX.Element {
                 case "META":
                     setStudioState({
                         ...studioState,
+                        deviceID: frame.dongle_serial,
+                        serialPort: frame.port,
                     });
                     break;
                 case "EMISSION":
@@ -249,8 +251,8 @@ export default function Studio(): JSX.Element {
                         sx={{padding: "10px"}}>
                         <ConnectionSidebar
                             connectionStatus={studioState.connectionStatus}
-                            deviceId={"TODO: Undefined"}
-                            serialPort={"TODO: Undefined"}
+                            deviceId={studioState.deviceID}
+                            serialPort={studioState.serialPort}
                             port={8000}
                             startTime={startTime}>
                             <Button id="start-session-button" onClick={startEEGStream}>
