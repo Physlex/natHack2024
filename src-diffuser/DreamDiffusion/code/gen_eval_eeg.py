@@ -85,7 +85,7 @@ if __name__ == '__main__':
     num_voxels = dataset_test.dataset.data_len
 
     ### DEBUG CODE: START
-    splits = torch.load("block_splits_by_image_single_fixed.pth")
+    splits = torch.load("../data/block_splits_by_image_single_fixed.pth")
     print(splits)
 
     # Check the train/test splits
