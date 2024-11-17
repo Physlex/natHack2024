@@ -1,12 +1,10 @@
-type EEGResponse = {
+export type EEGResponse = {
     timeseries: Array<number>;
     timestamps: Array<number>;
 }
 
-export default async function dashboardLoader(): Promise<EEGResponse | null> {
-    const eegResponse = await fetch("/dashboard/eeg/", {
-        method: "GET"
-    });
+export default async function dashboardLoader(): Promise<EEGResponse[] | null> {
+    const eegResponse = await fetch("/dashboard/eeg/", {method: "GET"});
 
     if (eegResponse.status >= 400) {
         console.error(`Failed to access eeg api. Reason: ${eegResponse.status}`)
@@ -14,8 +12,6 @@ export default async function dashboardLoader(): Promise<EEGResponse | null> {
         return null;
     }
 
-    console.error("TODO: Implement dashboard loader");
-    return (
-        {timeseries: [], timestamps: []}
-    );
+    const data = await eegResponse.json() as EEGResponse[];
+    return (data);
 }
