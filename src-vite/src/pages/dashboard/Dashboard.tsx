@@ -81,7 +81,7 @@ export default function Dashboard(): JSX.Element {
                 </Grid>
                 <Grid>
                     <Stack>
-                        <Paper>
+                        <Paper variant="outlined">
                             { dashboardState.selectedDataset && <>
                                 <SelectedChart
                                     label={"Current Chart"}
