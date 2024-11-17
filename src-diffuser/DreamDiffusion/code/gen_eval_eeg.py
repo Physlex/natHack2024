@@ -67,7 +67,7 @@ if __name__ == '__main__':
     config.pretrain_gm_path = os.path.join(config.root_path, 'gm_pretrain')
     print(config.__dict__)
 
-    output_path = os.path.join(config.root_path, 'results', 'eval',  
+    output_path = os.path.join(config.root_path, '../results', 'eval',  
                     '%s'%(datetime.datetime.now().strftime("%d-%m-%Y-%H-%M-%S")))
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
