@@ -52,7 +52,7 @@ class EEGBucket {
         const eegData = {
             name: name,
             timeseries: this.pool.slice(0, 16),
-            timestamps: this.pool[29],
+            timestamps: !this.pool[29] ? [] : this.pool[29],
         };
 
         const response = await fetch("/api/eeg/", {
@@ -251,7 +251,7 @@ export default function Studio(): JSX.Element {
                             <Button id="start-session-button" onClick={startEEGStream}>
                                 Start Session
                             </Button>
-                            <Button id="start-session-button" onClick={stopEEGStream}>
+                            <Button id="stop-session-button" onClick={stopEEGStream}>
                                 Stop Session
                             </Button>
                         </ConnectionSidebar>
