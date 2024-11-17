@@ -2,6 +2,7 @@
 API Endpoints are defined here.
 """
 
+import os
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
@@ -11,6 +12,7 @@ from . import serializers
 from . import models
 import requests
 from .helpers import encode_jwt_token
+from django.http import HttpResponse
 
 
 
@@ -54,6 +56,11 @@ class EEGModelCreateView(APIView):
 class DiffuserGenerateVideoView(APIView):
     
     def __init__(self):
+        """
+        This was a bad idea because it turns out that
+        a new class is instantiated every time a new request is made
+        so this all gets overwritten haha
+        """
         self.ak = "7b5b3413fac847e79f4bdaf3d3d8fdc0" # fill access key kling
         self.sk = "a159a6177fc745eca99f719c9f36941f" # fill secret key kling
         self.response_dict = {}
@@ -70,11 +77,11 @@ class DiffuserGenerateVideoView(APIView):
         self.headers = {'Content-Type': 'application/json',
                    'Authorization': f'Bearer {self.authorization}'
                    }
-        url = 'https://api.klingai.com/v1/videos/image2video'
+        # TODO: Add back!! 
+        # url = 'https://api.klingai.com/v1/videos/image2video'
         # Example data for testing
         data = {'model_name': 'kling-v1',
                 'image': 'https://cdn.discordapp.com/attachments/778329674215587841/1307550163048333353/IMG_20241116_203703.jpg?ex=673ab67b&is=673964fb&hm=b1b9461875a49e9e83256f2993e83509346c4b9ff55a578c648151ec7d1e4a48&',
-                'prompt': 'Make the video funny'
             }
         # Send post request
         response = requests.post(url, headers=self.headers, json=data)
@@ -135,3 +142,38 @@ class DiffuserGenerateVideoView(APIView):
             return Response(data=self.video_info['data'], status=status.HTTP_418_IM_A_TEAPOT)
         
         return Response(data=self.video_info['data'], status=status.HTTP_200_OK)
+    
+
+class DownloadVideoView(APIView):
+
+    def post(self, request: Request) -> Response:
+        
+        # Extract the URL from the request body
+        url = request.data.get('url')
+        
+        if not url:
+            return Response({"error": "URL is required"}, status=400)
+        
+        # Attempt to download the video from the URL
+        try:
+            response = requests.get(url, stream=True)
+
+            # Check if the URL is valid
+            if response.status_code != 200:
+                return Response({"error": "Failed to fetch the video from the provided URL"}, status=400)
+            
+            # Get the video filename from the URL
+            filename = os.path.basename(url)
+
+            # Return the video as a response
+            return HttpResponse(
+                response.iter_content(chunk_size=1024),
+                content_type='video/mp4',  # Adjust the content type if it's a different video format
+                headers={
+                    'Content-Disposition': f'attachment; filename="{filename}"'
+                }
+            )
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+        
+        return Response(status=status.HTTP_201_CREATED)

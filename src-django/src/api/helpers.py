@@ -78,7 +78,7 @@ def interpolateData(data_path, interpolation_type='fourier', num_points=500):
 
         
     padded_data = np.array(padded_data)
-    print(f'Original points #: {N} New point #: {len(padded_data[0])}')
+    # print(f'Original points #: {N} New point #: {len(padded_data[0])}')
     # TESTING
     # Re-scale graphs to show proper overlapping
     time_original = np.linspace(0, 1, len(data[0]))
@@ -87,14 +87,11 @@ def interpolateData(data_path, interpolation_type='fourier', num_points=500):
     # Mean Squared Error 
     # MSE = np.square(np.subtract(Y_true,Y_pred)).mean() 
     
-    plt.plot(time_upsampled, padded_data[0], 'o', label='padded data', marker='.')
-    plt.plot(time_original, data[0], 'o', label='data', marker='.')
-    plt.show()
+    # Was for testing
+    # plt.plot(time_upsampled, padded_data[0], 'o', label='padded data', marker='.')
+    # plt.plot(time_original, data[0], 'o', label='data', marker='.')
+    # plt.show()
     
-def generate_cling_video(image_path):
-    # does nothing rn, useless, might delete
-    authorization = encode_jwt_token(ak, sk)
-    print(authorization) # Printing the generated API_TOKEN
 
 def encode_jwt_token(ak, sk):
     headers = {
@@ -108,9 +105,6 @@ def encode_jwt_token(ak, sk):
     }
     token = jwt.encode(payload, sk, headers=headers)
     return token
-
-
-    
 
 def main():
     # asyncio.run(start_srv())
