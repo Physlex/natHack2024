@@ -349,14 +349,24 @@ class EEGDataset(Dataset):
         image_name = self.images[self.data[i]["image"]]
         image_path = os.path.join(self.imagenet, image_name.split('_')[0], image_name+'.JPEG')
         # print(image_path)
-        image_raw = Image.open(image_path).convert('RGB') 
-        
-        image = np.array(image_raw) / 255.0
+        try:
+            image_raw = Image.open(image_path).convert('RGB')  # Convert to PIL.Image.Image
+        except FileNotFoundError as e:
+            print(f"Error loading image {image_path}: {e}")
+            image_raw = Image.new('RGB', (256, 256), (255, 255, 255))  # Placeholder image
+
+        # Apply transform
+        if self.image_transform:
+            image = self.image_transform(image_raw)
+        else:
+            image = image_raw
+        ### END HRITIHICK PATCH
+
         image_raw = self.processor(images=image_raw, return_tensors="pt")
         image_raw['pixel_values'] = image_raw['pixel_values'].squeeze(0)
 
 
-        return {'eeg': eeg, 'label': label, 'image': self.image_transform(image), 'image_raw': image_raw}
+        return {'eeg': eeg, 'label': label, 'image': image, 'image_raw': image_raw}
         # Return
         # return eeg, label
 
