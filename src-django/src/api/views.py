@@ -29,12 +29,13 @@ class EEGModelReadView(APIView):
 class EEGModelCreateView(APIView):
 
     def post(self, request: Request) -> Response:
+        name = request.data["name"]
         timeseries = request.data["timeseries"]
         timestamps = request.data["timestamps"]
         if timeseries is None or timestamps is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        eeg_model = models.EEGModel.objects.create()
+        eeg_model = models.EEGModel.objects.create(name=name)
         samples = []
         for channel_idx, channel in enumerate(timeseries):
             eeg_channel = models.EEGChannel.objects.create(

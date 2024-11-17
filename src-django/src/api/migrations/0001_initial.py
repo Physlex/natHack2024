@@ -23,6 +23,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
+                ("name", models.CharField(max_length=255)),
                 ("date", models.DateTimeField(auto_now_add=True)),
             ],
         ),
