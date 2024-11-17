@@ -81,7 +81,7 @@ class DiffuserGenerateVideoView(APIView):
         url = 'https://api.klingai.com/v1/videos/image2video'
         # Example data for testing
         data = {'model_name': 'kling-v1',
-                'image': 'https://cdn.discordapp.com/attachments/778329674215587841/1307550163048333353/IMG_20241116_203703.jpg?ex=673ab67b&is=673964fb&hm=b1b9461875a49e9e83256f2993e83509346c4b9ff55a578c648151ec7d1e4a48&',
+                'image': 'https://thumbs.dreamstime.com/b/neon-background-wallpaper-futuristic-glowing-lights-cool-backgrounds-blue-white-green-image-generated-use-ai-276345013.jpg',
             }
         # Send post request
         response = requests.post(url, headers=self.headers, json=data)
@@ -97,13 +97,13 @@ class DiffuserGenerateVideoView(APIView):
                 print(f"Task ID missing! Response: {self.response_dict}")
             else:
                 request.session['task_id'] = task_id
-                print(f"Task ID successfully extracted: {self.task_id}")
+                print(f"Task ID successfully extracted: {task_id}")
                 
         except Exception as e:
             print(f"Error while extracting task_id: {e}")
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         
-        data = {'task_id': self.task_id}
+        data = {'task_id': task_id}
         return Response(status=status.HTTP_201_CREATED, data=data)
     
     def get(self, request: Request) -> Response:
@@ -117,10 +117,11 @@ class DiffuserGenerateVideoView(APIView):
                    'Authorization': f'Bearer {self.authorization}'
                    }
         
+        # I don't know if this works!!
         task_id = request.session.get('task_id', None)  # Retrieve task_id from the session
         # I'm not sure if this URL is correct
-        url = f'https://api.klingai.com/v1/videos/image2video/Cji7cGctxFMAAAAAAYaNkg'
-        # url = f'https://api.klingai.com/v1/videos/image2video/{task_id}'
+        # url = f'https://api.klingai.com/v1/videos/image2video/Cji7cGctxFMAAAAAAYaNkg'
+        url = f'https://api.klingai.com/v1/videos/image2video/{task_id}'
         print(f'url: {url}')
         # Example data for testing
         params = {'task_id': self.task_id}
@@ -132,7 +133,7 @@ class DiffuserGenerateVideoView(APIView):
         self.video_info = response.json()
         try:
             # Extract the task_id from the response
-            self.video_url = self.video_info.get('data', {}).get('videos', None).get('url', '')
+            self.video_url = self.video_info["data"]["task_result"]["videos"][0]["url"]
             if self.video_url is None:
                 print("Video URL not found in the response!")
             else:
@@ -141,7 +142,8 @@ class DiffuserGenerateVideoView(APIView):
             print(f"Error while extracting video url: {e}")
             return Response(data=self.video_info['data'], status=status.HTTP_418_IM_A_TEAPOT)
         
-        return Response(data=self.video_info['data'], status=status.HTTP_200_OK)
+        data = {"url": self.video_url}
+        return Response(data=data, status=status.HTTP_200_OK)
     
 
 class DownloadVideoView(APIView):
