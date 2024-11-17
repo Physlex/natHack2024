@@ -26,10 +26,18 @@ def channel_last(img):
     return rearrange(img, 'c h w -> h w c')
 
 def normalize(img):
-    if img.shape[-1] == 3:
-        img = rearrange(img, 'h w c -> c h w')
-    img = torch.tensor(img)
-    img = img * 2.0 - 1.0 # to -1 ~ 1
+    # Convert PIL Image to numpy array if necessary
+    if isinstance(img, Image.Image):
+        img = np.array(img)  # Convert to numpy.ndarray
+
+    # Check if image has channels last
+    if img.ndim == 3 and img.shape[-1] == 3:  # HWC format
+        img = rearrange(img, 'h w c -> c h w')  # Convert to CHW
+
+    # Convert to PyTorch tensor and normalize
+    img = torch.tensor(img, dtype=torch.float32)
+    img = img / 255.0  # Scale to [0, 1]
+    img = img * 2.0 - 1.0  # Normalize to [-1, 1]
     return img
 
 def wandb_init(config):
