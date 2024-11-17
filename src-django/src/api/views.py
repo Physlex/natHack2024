@@ -180,3 +180,26 @@ class DownloadVideoView(APIView):
             return Response({"error": str(e)}, status=500)
         
         return Response(status=status.HTTP_201_CREATED)
+
+class DashboardAttentionView(APIView):
+    def get(self, request: Request, eeg_model_name: str) -> Response:
+        eeg_model_klass = get_object_or_404(models.EEGModel, name=eeg_model_name)
+        eeg_channel_klasses = models.EEGChannel.objects.filter(model=eeg_model_klass)
+
+        timeseries = []
+        timesamples = []
+        for eeg_channel_klass in eeg_channel_klasses:
+            eeg_time_series = models.EEGSample.objects.filter(channel=eeg_channel_klass)
+            for eeg_sample in eeg_time_series:
+                timeseries.append(eeg_sample.data)
+                timesamples.append(eeg_sample.timestamp)
+
+        attention_series = []
+        attention_timesamples = []
+
+        ## TODO: Attention series algorithm here
+
+        return Response(data={
+            "attentionseries": attention_series,
+            "timesamples": attention_timesamples
+        }, status=status.HTTP_200_OK)

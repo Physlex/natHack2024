@@ -18,6 +18,12 @@ urlpatterns = [
         views.EEGModelCreateView.as_view(),
         name="EEG Create Endpoint"
     ),
+    # ATTENTION
+    path(
+        "dashboard/attention/<str:eeg_model_name>/",
+        views.DashboardAttentionView.as_view(),
+        name="Attention Processing Endpoint"
+    ),
     # DIFFUSER
     path(
         "diffuser/generate/",
@@ -30,4 +36,5 @@ urlpatterns = [
         views.DownloadVideoView.as_view(),
         name="Download Video",
     ),
+    # 
 ]
