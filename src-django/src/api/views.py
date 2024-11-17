@@ -68,7 +68,7 @@ class DiffuserGenerateVideoView(APIView):
         self.video_info = {}
         self.video_url = ''
 
-    def post(self, request: Request) -> Response:
+    def post(self, request: Request) -> Response: # This should have image url passed into it for processing
         """
         Sends a request to the kling api to start converting an image into a 5 second video.
         """
@@ -78,7 +78,7 @@ class DiffuserGenerateVideoView(APIView):
                    'Authorization': f'Bearer {self.authorization}'
                    }
         # TODO: Add back!! 
-        # url = 'https://api.klingai.com/v1/videos/image2video'
+        url = 'https://api.klingai.com/v1/videos/image2video'
         # Example data for testing
         data = {'model_name': 'kling-v1',
                 'image': 'https://cdn.discordapp.com/attachments/778329674215587841/1307550163048333353/IMG_20241116_203703.jpg?ex=673ab67b&is=673964fb&hm=b1b9461875a49e9e83256f2993e83509346c4b9ff55a578c648151ec7d1e4a48&',
@@ -96,15 +96,15 @@ class DiffuserGenerateVideoView(APIView):
             if not task_id:
                 print(f"Task ID missing! Response: {self.response_dict}")
             else:
-                request.session['task_id'] = task_id 
+                request.session['task_id'] = task_id
                 print(f"Task ID successfully extracted: {self.task_id}")
                 
         except Exception as e:
             print(f"Error while extracting task_id: {e}")
             return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         
-        
-        return Response(status=status.HTTP_201_CREATED)
+        data = {'task_id': self.task_id}
+        return Response(status=status.HTTP_201_CREATED, data=data)
     
     def get(self, request: Request) -> Response:
         """

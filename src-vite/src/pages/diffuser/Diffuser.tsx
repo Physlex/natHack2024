@@ -70,8 +70,15 @@ export default function Diffuser(): JSX.Element {
         videoGenerated: false,
     } as DiffuserProps);
 
-    // Temporary testing video URL
-    const vid_url = "https://cdn.klingai.com/bs2/upload-kling-api/2154537099/image2video/Cji7cGctxFMAAAAAAYTq1Q-0_raw_video_1.mp4";
+    // Enable/disabling download button when it is available
+    //const [isDownloadEnabled, setDownloadEnabled] = useState(false);
+    const [isDownloadEnabled, setDownloadEnabled] = useState(false);
+
+    // State to toggle between Box and Video
+    const [isVideo, setIsVideo] = useState(false);
+
+    const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
+
 
     // Update the timestamp setting for the page
     const handleTimestampChange = async (setting: string) => {
@@ -81,22 +88,46 @@ export default function Diffuser(): JSX.Element {
         })
     }
 
+
     // Call the backend to generate the diffusion
     // Button to call backend and generate the diffusion video from multiple images.
     // Will concatenate the videos generated.
     const handleButtonClick = async (_: React.MouseEvent<HTMLButtonElement>) => {
-        // Correct method. Just figuring out other stuff rn.
-        // Going to make a video embed pop up for now instead.
-        // const response = await fetch("/api/diffuser/generate/", {method: "POST"});
-        // if (response.status >= 400) {
-        //     console.error(`Failed to generate diffusion. Reason: ${response.status}`);
-        //     window.history.back();
-        //     return;
-        // } else {
+        const response = await fetch("/api/diffuser/generate/", {method: "POST"});
+        if (response.status >= 400) {
+            console.error(`Failed to generate diffusion. Reason: ${response.status}`);
+            window.history.back();
+            return;
+        } else { // Need to wait for video to be created and load.
+            const responseData = await response.json();
+            const taskId = responseData.task_id;
             
-        // }
-        setDownloadEnabled(true);
-        setIsVideo(true);
+            if (taskId != null) {
+                // Step 3: Start polling the server every 5 seconds to check for the video_url
+                let videoUrl = null;
+                const pollInterval = setInterval(async () => {
+                  const statusResponse = await fetch(`/api/diffuser/generate/${taskId}/`, { method: "GET" });
+        
+                  if (statusResponse.status === 200) {
+                    const statusData = await statusResponse.json();
+                    videoUrl = statusData.video_url;
+        
+                    if (videoUrl) {
+                      // Stop polling once the video_url is received
+                      clearInterval(pollInterval);
+                      // Proceed to handle the video URL, e.g., show the video
+                      console.log('Video URL:', videoUrl);
+                      // You can update state here to show the video or enable download
+                      setIsVideo(true); // Assuming this state will render the video
+                      setVideoUrl(videoUrl); // Set the video URL for your component
+                      setDownloadEnabled(true); // Enable download button or other UI
+                    }
+                  } else {
+                    console.error(`Failed to fetch video status. Reason: ${statusResponse.status}`);
+                  }
+                }, 5000); // 5 seconds interval
+            }
+        }
     }
 
     const handleDownloadClick = async () => {
@@ -106,7 +137,7 @@ export default function Diffuser(): JSX.Element {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ url: vid_url }), // Example URL
+            body: JSON.stringify({ url: videoUrl }), // Example URL
           });
       
           if (response.status === 200) {
@@ -115,7 +146,7 @@ export default function Diffuser(): JSX.Element {
             const downloadUrl = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = downloadUrl;
-            link.download = 'video.mp4';  // You can set the name based on the filename from the backend
+            link.download = 'mind-diffuser-creation.mp4';  // You can set the name based on the filename from the backend
             link.click();
           } else {
             console.error('Failed to download video:', await response.text());
@@ -125,12 +156,7 @@ export default function Diffuser(): JSX.Element {
         }
       };
 
-    // Enable/disabling download button when it is available
-    //const [isDownloadEnabled, setDownloadEnabled] = useState(false);
-    const [isDownloadEnabled, setDownloadEnabled] = useState(false);
 
-    // State to toggle between Box and Video
-    const [isVideo, setIsVideo] = useState(false);
 
     return (
         <Grid container sx={{ height: '100vh' }}>
@@ -183,7 +209,7 @@ export default function Diffuser(): JSX.Element {
                 controls
                 autoPlay
                 >
-                <source src={vid_url} type="video/mp4" />
+                <source src={videoUrl} type="video/mp4" />
                 Your browser does not support the video tag.
                 </video>
             </Box>
