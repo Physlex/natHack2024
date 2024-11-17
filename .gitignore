@@ -36,8 +36,8 @@ dist-ssr
 *.sw?
 
 # données à la diffuseur
-src-diffuser/data
-src-diffuser/eegdata_out
+src-diffuser/DreamDiffusion/data
+src-diffuser/DreamDiffusion/eegdata_out
 src-diffuser/results
 src-diffuser/generated
 
