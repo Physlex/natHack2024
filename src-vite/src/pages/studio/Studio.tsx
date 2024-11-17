@@ -6,7 +6,7 @@
 import { Box } from '@mui/material';
 import Viewport from '../../components/ui/viewport/Viewport';
 import { URLForm } from '../../components/forms';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 
 // A single row of N eeg channel samples
@@ -35,9 +35,8 @@ type EEGDataFrame = {
  * @param websocket websocket connection endpoint
  */
 type StudioProps = {
-    viewport: null | JSX.Element;
     websocket: null | WebSocket;
-    bucket: EEGBucket;
+    url: null | string;
 }
 
 /**
@@ -78,10 +77,10 @@ class EEGBucket {
  */
 export default function Studio(): JSX.Element {
     const [studioState, setStudioState] = useState({
-        viewport: null,
         websocket: null,
-        bucket: new EEGBucket(),
+        url: null,
     } as StudioProps);
+    let bucket = new EEGBucket();
 
     // onPlay handler for the viewport
     const startEEGStream = () => {
@@ -105,7 +104,7 @@ export default function Studio(): JSX.Element {
             console.log("Message received: ", event.data);
             const frame = JSON.parse(event.data) as EEGDataFrame;
             if (frame.code === "EMISSION") {
-                studioState.bucket.pool.push(frame.data);
+                bucket.pool.push(frame.data);
                 setStudioState({...studioState});
             }
         };
@@ -114,7 +113,7 @@ export default function Studio(): JSX.Element {
             console.log("Websocket connection close: ", event);
             console.log("Code: ", event.code, "\nReason: ", event.reason);
             websocket.send(JSON.stringify({code: "TERM"}));
-            studioState.bucket.send();
+            bucket.send();
         };
     };
 
@@ -125,24 +124,22 @@ export default function Studio(): JSX.Element {
 
     // Save the url of the url form
     const saveUrl = async (url?: string) => {
-        if (url === undefined || url === null) {
+        if (url === undefined) {
             console.info("Invalid url submitted");
             return;
         }
-
-        setStudioState({
-            ...studioState,
-            viewport: <Viewport
-                url={url}
-                onPlay={startEEGStream}
-                onPause={stopEEGStream} />
-        });
+        setStudioState({...studioState, url: url});
     }
 
     return (
         <Box id="studio" component="div">
             <URLForm label={"Video URL"} onSubmit={saveUrl}/>
-            {studioState.viewport}
+            { studioState.url &&
+                <Viewport
+                    url={studioState.url}
+                    onPlay={startEEGStream}
+                    onPause={stopEEGStream} />
+            }
         </Box>
     );
 }
