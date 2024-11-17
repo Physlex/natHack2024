@@ -48,28 +48,15 @@ class random_crop:
             return transforms.RandomCrop(size=(self.size, self.size))(img)
         return img
 
-def get_args_parser():
-    parser = argparse.ArgumentParser('Double Conditioning LDM Finetuning', add_help=False)
-    # project parameters
-    parser.add_argument('--root', type=str, default='../dreamdiffusion/')
-    parser.add_argument('--dataset', type=str, default='GOD')
-    parser.add_argument('--model_path', type=str)
-
-    return parser
-
 
 if __name__ == '__main__':
-    args = get_args_parser()
-    args = args.parse_args()
-    root = args.root
-    target = args.dataset
-
-    sd = torch.load(args.model_path, map_location='cpu')
+    target='EEG'
+    sd = torch.load('../data/checkpoint.pth', map_location='cpu')
     config = sd['config']
     # update paths
-    config.root_path = root
-    config.pretrain_mbm_path = '../dreamdiffusion/results/eeg_pretrain/19-02-2023-08-48-17/checkpoints/checkpoint.pth'
-    config.pretrain_gm_path = '../dreamdiffusion/pretrains/'
+    config.root_path = '../data'
+    config.pretrain_mbm_path = os.path.join(config.root_path, 'checkpoint-eeg-500.pth')
+    config.pretrain_gm_path = os.path.join(config.root_path, 'gm_pretrain')
     print(config.__dict__)
 
     output_path = os.path.join(config.root_path, 'results', 'eval',  
@@ -91,10 +78,23 @@ if __name__ == '__main__':
     ])
 
     
-    splits_path = "../dreamdiffusion/datasets/block_splits_by_image_single.pth"
-    dataset_train, dataset_test = create_EEG_dataset(eeg_signals_path = config.eeg_signals_path, splits_path = splits_path, 
+    splits_path = "../data/block_splits_by_image_single_fixed.pth"
+    # NOTE: change depending on the received data from API
+    dataset_train, dataset_test = create_EEG_dataset(eeg_signals_path = '../data/processed_eeg_data_updated.pth', splits_path = splits_path, 
                 image_transform=[img_transform_train, img_transform_test], subject = 4)
     num_voxels = dataset_test.dataset.data_len
+
+    ### DEBUG CODE: START
+    splits = torch.load("block_splits_by_image_single_fixed.pth")
+    print(splits)
+
+    # Check the train/test splits
+    train_indices = splits["splits"][0]["train"]
+    test_indices = splits["splits"][0]["test"]
+
+    print(f"Train indices: {train_indices}")
+    print(f"Test indices: {test_indices}")
+    ### DEBUG CODE: END
 
     # num_voxels = dataset_test.num_voxels
     print(len(dataset_test))
@@ -110,14 +110,16 @@ if __name__ == '__main__':
     state = sd['state']
     os.makedirs(output_path, exist_ok=True)
     grid, _ = generative_model.generate(dataset_train, config.num_samples, 
-                config.ddim_steps, config.HW, 10) # generate 10 instances
+                config.ddim_steps, config.HW, 2) # generate 2 instances
     grid_imgs = Image.fromarray(grid.astype(np.uint8))
     
     grid_imgs.save(os.path.join(output_path, f'./samples_train.png'))
 
+    """
     grid, samples = generative_model.generate(dataset_test, config.num_samples, 
                 config.ddim_steps, config.HW, limit=None, state=state, output_path = output_path) # generate 10 instances
     grid_imgs = Image.fromarray(grid.astype(np.uint8))
 
 
     grid_imgs.save(os.path.join(output_path, f'./samples_test.png'))
+    """
