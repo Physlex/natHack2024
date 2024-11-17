@@ -34,7 +34,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-test.webm
 
 # données à la diffuseur
 src-diffuser/data
