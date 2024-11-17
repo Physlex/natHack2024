@@ -132,7 +132,7 @@ export default function Studio(): JSX.Element {
     }
 
     return (
-        <Box id="studio" component="div">
+        <Box id="studio" sx={{paddingTop: "10px", margin: "0px auto", width: "50%"}} component="div">
             <URLForm label={"Video URL"} onSubmit={saveUrl}/>
             { studioState.url &&
                 <Viewport
