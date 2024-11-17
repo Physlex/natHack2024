@@ -1,6 +1,8 @@
+import datetime
 from websockets.asyncio.server import serve, ServerConnection
 from websockets.exceptions import ConnectionClosedError
 from openbci import CytonDaisy
+import serial.tools.list_ports
 import asyncio
 import json
 from dataclasses import dataclass
@@ -57,7 +59,7 @@ class WsEEGAsyncHandler:
     async def emit_eeg(self, ws: ServerConnection):
         while self.emitting:
             samp = self.board.get_data()
-            print(samp.size, self.board.chs)
+            print(samp.size, "samples over", len(self.board.chs), "channels", datetime.datetime.now())
             msg = EWs_EmitLatest(
                 nchs=len(self.board.chs),
                 n=samp.size,
@@ -85,8 +87,8 @@ class WsEEGAsyncHandler:
             print(e.with_traceback(None))
 
 
-async def start_srv():
-    with CytonDaisy("COM17") as board:
+async def start_srv(serial_port: str):
+    with CytonDaisy(serial_port) as board:
         handler_cls = WsEEGAsyncHandler(board)
         async with serve(handler_cls.handler, "", 8001, max_size=2**30):
             print("Starting EEG Emissary...")
@@ -94,4 +96,9 @@ async def start_srv():
 
 
 if __name__ == "__main__":
-    asyncio.run(start_srv())
+    DONGOL_SERIAL_NUM = 'DM03GR27A'
+    ports = filter(lambda port: port.serial_number == DONGOL_SERIAL_NUM, serial.tools.list_ports.comports())
+    if not ports:
+        raise Exception("Dongle not found")
+    port = next(ports)
+    asyncio.run(start_srv(port.device))
