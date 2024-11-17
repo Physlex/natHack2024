@@ -67,8 +67,10 @@ if __name__ == '__main__':
     config.pretrain_gm_path = os.path.join(config.root_path, 'gm_pretrain')
     print(config.__dict__)
 
-    output_path = os.path.join(config.root_path, 'results', 'eval',  
-                    '%s'%(datetime.datetime.now().strftime("%d-%m-%Y-%H-%M-%S")))
+    #output_path = os.path.join(config.root_path, 'results', 'eval',  
+    #               '%s'%(datetime.datetime.now().strftime("%d-%m-%Y-%H-%M-%S")))
+    output_path = os.path.join('....../generated')
+
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -121,7 +123,11 @@ if __name__ == '__main__':
                 config.ddim_steps, config.HW, 2) # generate 2 instances
     grid_imgs = Image.fromarray(grid.astype(np.uint8))
     
-    grid_imgs.save(os.path.join(output_path, f'./samples_train.png'))
+    #grid_imgs.save(os.path.join(output_path, f'./samples_train.png'))
+    # Save each generated image individually
+    for i, img_array in enumerate(grid):
+        img = Image.fromarray(img_array.astype(np.uint8))
+        img.save(os.path.join(output_path, f'sample_train_{i}.png'))
 
     """
     grid, samples = generative_model.generate(dataset_test, config.num_samples, 
