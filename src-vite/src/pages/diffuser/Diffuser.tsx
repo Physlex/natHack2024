@@ -79,7 +79,7 @@ export default function Diffuser(): JSX.Element {
 
     // Call the backend to generate the diffusion
     const handleButtonClick = async (_: React.MouseEvent<HTMLButtonElement>) => {
-        const response = await fetch("/api/diffuser/generate", {method: "POST"});
+        const response = await fetch("/api/diffuser/generate/", {method: "POST"});
         if (response.status >= 400) {
             console.error(`Failed to generate diffusion. Reason: ${response.status}`);
             window.history.back();
