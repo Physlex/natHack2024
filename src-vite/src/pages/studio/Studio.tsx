@@ -3,12 +3,13 @@
  */
 
 
-import { Divider, Paper, Stack, Typography } from '@mui/material';
+import { Box, Paper, Typography, Grid2 as Grid } from '@mui/material';
 import { useState } from 'react';
 
 import Viewport from '../../components/ui/viewport/Viewport';
 import { URLForm } from '../../components/forms';
 import { default as BlackSquare } from './BlackSquare';
+import ConnectionSidebar from './ConnectionStatus';
 
 
 // A single row of N eeg channel samples
@@ -25,21 +26,11 @@ type EEGDataPacket = EEGDataChannel[];
  * @param hz The samplerate of the underlying dataset.
  */
 type EEGDataFrame = {
-    code: "EMISSION" | "INIT" | "TERM";
+    code: "EMISSION" | "INIT" | "TERM" | "HEADER";
     n: number;
     nchs: number;
     data: EEGDataPacket;
     hz: number;
-}
-
-/**
- * @param viewport Rendered viewport
- * @param websocket websocket connection endpoint
- */
-type StudioProps = {
-    websocket: null | WebSocket;
-    url: null | string;
-    bucket: null | EEGBucket;
 }
 
 /**
@@ -84,6 +75,17 @@ class EEGBucket {
 }
 
 /**
+ * @param viewport Rendered viewport
+ * @param websocket websocket connection endpoint
+ */
+type StudioProps = {
+    websocket: null | WebSocket;
+    url: null | string;
+    bucket: null | EEGBucket;
+    connectionStatus: "Disconnected" | "Connected" | "Connection Terminated"
+}
+
+/**
  * @return Studio Page.
  */
 export default function Studio(): JSX.Element {
@@ -91,6 +93,7 @@ export default function Studio(): JSX.Element {
         websocket: null,
         url: null,
         bucket: null,
+        connectionStatus: "Disconnected"
     } as StudioProps);
 
     // onPlay handler for the viewport
@@ -107,18 +110,36 @@ export default function Studio(): JSX.Element {
         websocket.onopen = (_: Event) => {
             console.log("Socket Connected");
             websocket.send(JSON.stringify({code: "INIT", ivl: 1000}));
+            setStudioState({
+                ...studioState,
+                connectionStatus: "Connected",
+            })
         };
 
         websocket.onerror = (event: Event) => {
             console.error("Error: ", event);
+            setStudioState({
+                ...studioState,
+                connectionStatus: "Connection Terminated",
+            });
         };
 
         websocket.onmessage = (event: MessageEvent) => {
             console.log("Message received: ", event.data);
             const frame = JSON.parse(event.data) as EEGDataFrame;
-            if (frame.code === "EMISSION") {
-                bucket.pool.push(frame.data);
-                setStudioState({...studioState});
+            switch (frame.code) {
+                case "HEADER":
+
+                    break;
+                case "EMISSION":
+                    bucket.pool.push(frame.data);
+                    setStudioState({
+                        ...studioState,
+                        connectionStatus: "Connected"
+                    });
+                    break;
+                default:
+                    break;
             }
         };
 
@@ -126,6 +147,10 @@ export default function Studio(): JSX.Element {
             console.log("Websocket connection close: ", event);
             console.log("Code: ", event.code, "\nReason: ", event.reason);
             bucket.send();
+            setStudioState({
+                ...studioState,
+                connectionStatus: "Disconnected",
+            })
         };
     };
 
@@ -146,38 +171,62 @@ export default function Studio(): JSX.Element {
         setStudioState({...studioState, url: url});
     }
 
+    // Created at the start of the render, and never again.
+    const startTime = new Date();
+
     return (
-        <Paper
+        <Box
             id="studio"
-            variant="outlined"
             sx={{
                 padding: "10px",
                 margin: "10px auto",
-                height: "90vh",
-                width: "60%"
+                height: "100%",
+                width: "80%"
             }} component="div">
-            <Stack 
+            <Grid
+              container
               spacing={2}
-              justifyContent="center" 
-              alignItems="center"
-              divider={<Divider flexItem/>}>
-                <URLForm label={"Video URL"} onSubmit={saveUrl}/>
-                { studioState.url &&
-                    <Viewport
-                        url={studioState.url}
-                        onPlay={startEEGStream}
-                        onPause={stopEEGStream} />
-                }
-                { !studioState.url &&
-                    <BlackSquare>
-                        <Typography
-                            variant="h6"
-                            sx={{color: "white", fontFamily: "monospace"}}>
-                            Please Insert Video URL
-                        </Typography>
-                    </BlackSquare>
-                }
-            </Stack>
-        </Paper>
+              justifyContent="center"
+              alignItems="center">
+                <Grid size={8}>
+                    <Paper
+                        variant="outlined" elevation={2}
+                        sx={{padding: "10px"}}>
+                        <Box height="80vh">
+                            { studioState.url &&
+                                <Viewport
+                                    url={studioState.url}
+                                    onPlay={startEEGStream}
+                                    onPause={stopEEGStream} />
+                            }
+                            { !studioState.url &&
+                                <BlackSquare>
+                                    <Typography
+                                        variant="h6"
+                                        sx={{color: "white", fontFamily: "monospace"}}>
+                                        Please Insert Video URL
+                                    </Typography>
+                                </BlackSquare>
+                            }
+                        </Box>
+                    </Paper>
+                </Grid>
+                <Grid size={4}>
+                    <Paper
+                        variant="outlined"
+                        elevation={2}
+                        sx={{padding: "10px"}}>
+                        <ConnectionSidebar
+                            connectionStatus={studioState.connectionStatus}
+                            deviceId={"TODO: Undefined"}
+                            serialPort={"TODO: Undefined"}
+                            port={8000}
+                            startTime={startTime}>
+                            <URLForm label={"Video URL"} onSubmit={saveUrl}/>
+                        </ConnectionSidebar>
+                    </Paper>
+                </Grid>
+            </Grid>
+        </Box>
     );
 }

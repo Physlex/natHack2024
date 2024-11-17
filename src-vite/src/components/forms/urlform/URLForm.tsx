@@ -3,7 +3,7 @@
  */
 
 
-import { Box, TextField } from '@mui/material';
+import { Stack, Button, TextField } from '@mui/material';
 import React, { useState } from 'react';
 
 
@@ -45,9 +45,17 @@ export default function URLForm({ label, onSubmit }: URLFormParams): JSX.Element
     }
 
     return (
-        <Box
+        <Stack
             component="form"
-            onSubmit={handleSubmit}>
+            onSubmit={handleSubmit}
+            sx={{
+                display: "flex",
+                flexGrow: 1,
+                width: "100%",
+                justifyContent: "center",
+                alignItems: "center"
+            }}
+            flexDirection="row">
             <TextField
                 type="url"
                 id="outlined-basic"
@@ -57,6 +65,9 @@ export default function URLForm({ label, onSubmit }: URLFormParams): JSX.Element
                 required={true}
                 fullWidth={true}
                 variant="outlined" />
-        </Box>
+            <Button id="start-session-button" type="submit">
+                Start Session
+            </Button>
+        </Stack>
     );
 }
