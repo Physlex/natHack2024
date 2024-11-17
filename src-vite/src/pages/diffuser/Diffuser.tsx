@@ -70,6 +70,9 @@ export default function Diffuser(): JSX.Element {
         videoGenerated: false,
     } as DiffuserProps);
 
+    // Temporary testing video URL
+    const vid_url = "https://cdn.klingai.com/bs2/upload-kling-api/2154537099/image2video/Cji7cGctxFMAAAAAAYTq1Q-0_raw_video_1.mp4";
+
     // Update the timestamp setting for the page
     const handleTimestampChange = async (setting: string) => {
         setDiffuserState({
@@ -95,6 +98,33 @@ export default function Diffuser(): JSX.Element {
         setDownloadEnabled(true);
         setIsVideo(true);
     }
+
+    const handleDownloadClick = async () => {
+        try {
+          const response = await fetch("/api/diffuser/download-video/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ url: vid_url }), // Example URL
+          });
+      
+          if (response.status === 200) {
+            // Handle the video download, e.g., by redirecting the user to the response URL
+            const blob = await response.blob();
+            const downloadUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = 'video.mp4';  // You can set the name based on the filename from the backend
+            link.click();
+          } else {
+            console.error('Failed to download video:', await response.text());
+          }
+        } catch (error) {
+          console.error('Error while requesting video download:', error);
+        }
+      };
+
     // Enable/disabling download button when it is available
     //const [isDownloadEnabled, setDownloadEnabled] = useState(false);
     const [isDownloadEnabled, setDownloadEnabled] = useState(false);
@@ -153,7 +183,7 @@ export default function Diffuser(): JSX.Element {
                 controls
                 autoPlay
                 >
-                <source src="https://cdn.klingai.com/bs2/upload-kling-api/2154537099/image2video/Cji7cGctxFMAAAAAAYTq1Q-0_raw_video_1.mp4" type="video/mp4" />
+                <source src={vid_url} type="video/mp4" />
                 Your browser does not support the video tag.
                 </video>
             </Box>
@@ -190,6 +220,7 @@ export default function Diffuser(): JSX.Element {
                     className="donwnload-diffusion"
                     variant="outlined"
                     size="large"
+                    onClick={handleDownloadClick}
                     endIcon={<DownloadIcon />}
                     disabled={!isDownloadEnabled} // Button is disabled unless state is true
                     >
