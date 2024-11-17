@@ -134,7 +134,8 @@ export default function Studio(): JSX.Element {
                     });
                     break;
                 case "EMISSION":
-                    studioState.bucket.pool.push((frame as EEGDataFrame).data);
+                    const mutatedBucket = studioState.bucket;
+                    mutatedBucket.pool.push((frame as EEGDataFrame).data);
                     setStudioState({
                         ...studioState,
                         connectionStatus: "Connected",
