@@ -109,6 +109,8 @@ class WsEEGAsyncHandlerMock(WsEEGAsyncHandler):
 
 async def start_srv(serial_port: str):
     with CytonDaisy(serial_port) as board:
+        from brainflow import BoardIds
+        print(board.board.get_board_descr(BoardIds.CYTON_DAISY_BOARD))
         handler_cls = WsEEGAsyncHandler(board)
         async with serve(handler_cls.handler, "", 8001, max_size=2**30):
             print("Starting EEG Emissary...")
@@ -121,7 +123,7 @@ async def start_srv_rand():
         await asyncio.get_running_loop().create_future()
 
 if __name__ == "__main__":
-    asyncio.run(start_srv_rand())
+    #asyncio.run(start_srv_rand())
 
     DONGOL_SERIAL_NUM = 'DM03GR27A'
     ports = filter(lambda port: port.serial_number == DONGOL_SERIAL_NUM, serial.tools.list_ports.comports())
