@@ -1,0 +1,16 @@
+torch
+torchvision
+einops
+transformers
+timm
+wandb
+omegaconf
+tqdm
+pytorch_lightning 
+kornia
+torchmetrics
+torchtext
+natsort
+scikit-image
+tensorflow==2.17.1
+GPUtil
