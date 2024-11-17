@@ -225,7 +225,6 @@ export default function Studio(): JSX.Element {
                             { studioState.url &&
                                 <Viewport
                                     url={studioState.url}
-                                    onPlay={startEEGStream}
                                     onPause={stopEEGStream} />
                             }
                             { !studioState.url &&

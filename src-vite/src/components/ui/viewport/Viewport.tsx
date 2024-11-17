@@ -25,7 +25,6 @@ const youtubeViewerStyles = {
  */
 type ViewportParams = {
     url: string;
-    onPlay: () => void;
     onPause: () => void;
 }
 
@@ -46,7 +45,7 @@ type ViewportProps = {
 /**
  * @return Viewport component.
  */
-export default function Viewport({ url, onPlay, onPause }: ViewportParams): JSX.Element {
+export default function Viewport({ url, onPause }: ViewportParams): JSX.Element {
     const [viewportState, setViewportState] = useState({
         url: url,
         videoID: "",
@@ -57,7 +56,7 @@ export default function Viewport({ url, onPlay, onPause }: ViewportParams): JSX.
     } as ViewportProps);
 
     // On ready event handler for youtube api
-    const onReady = async (event: any) => {
+    const onReady = async (_: any) => {
     }
 
     // Ensure the url is correct, setting the viewport state as necessary.
@@ -130,12 +129,6 @@ export default function Viewport({ url, onPlay, onPause }: ViewportParams): JSX.
         return (() => {window.removeEventListener("resize", handleSizing)});
     }, [url]);
 
-    const handlePlay = async (event: any) => {
-        console.info("Playing video...");
-        event.target.playVideo();
-        onPlay();
-    };
-
     const handlePause = async (event: any) => {
         console.info("Pausing video...");
         event.target.pauseVideo();
@@ -151,7 +144,6 @@ export default function Viewport({ url, onPlay, onPause }: ViewportParams): JSX.
                 videoId={`${viewportState.videoID}`}
                 opts={viewportState.opts}
                 onReady={onReady}
-                onPlay={handlePlay}
                 onPause={handlePause}
                 >
             </Youtube>
