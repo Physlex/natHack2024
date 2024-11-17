@@ -58,7 +58,6 @@ export default function Viewport({ url, onPlay, onPause }: ViewportParams): JSX.
 
     // On ready event handler for youtube api
     const onReady = async (event: any) => {
-        event.target.pauseVideo();
     }
 
     // Ensure the url is correct, setting the viewport state as necessary.
