@@ -22,9 +22,11 @@ def log_txt_as_img(wh, xc, size=10):
     for bi in range(b):
         txt = Image.new("RGB", wh, color="white")
         draw = ImageDraw.Draw(txt)
-        font = ImageFont.truetype('data/DejaVuSans.ttf', size=size)
+        font = ImageFont.truetype("data/DejaVuSans.ttf", size=size)
         nc = int(40 * (wh[0] / 256))
-        lines = "\n".join(xc[bi][start:start + nc] for start in range(0, len(xc[bi]), nc))
+        lines = "\n".join(
+            xc[bi][start : start + nc] for start in range(0, len(xc[bi]), nc)
+        )
 
         try:
             draw.text((0, 0), lines, fill="black", font=font)
@@ -45,7 +47,7 @@ def ismap(x):
 
 
 def isimage(x):
-    if not isinstance(x,torch.Tensor):
+    if not isinstance(x, torch.Tensor):
         return False
     return (len(x.shape) == 4) and (x.shape[1] == 3 or x.shape[1] == 1)
 
@@ -77,7 +79,7 @@ def count_params(model, verbose=False):
 
 def instantiate_from_config(config):
     if not "target" in config:
-        if config == '__is_first_stage__':
+        if config == "__is_first_stage__":
             return None
         elif config == "__is_unconditional__":
             return None
@@ -92,6 +94,7 @@ def get_obj_from_str(string, reload=False):
         importlib.reload(module_imp)
     return getattr(importlib.import_module(module, package=None), cls)
 
+
 def _do_parallel_data_prefetch(func, Q, data, idx, idx_to_fn=False):
     # create dummy dataset instance
 
@@ -105,7 +108,12 @@ def _do_parallel_data_prefetch(func, Q, data, idx, idx_to_fn=False):
 
 
 def parallel_data_prefetch(
-        func: callable, data, n_proc, target_data_type="ndarray", cpu_intensive=True, use_worker_id=False
+    func: callable,
+    data,
+    n_proc,
+    target_data_type="ndarray",
+    cpu_intensive=True,
+    use_worker_id=False,
 ):
     # if target_data_type not in ["ndarray", "list"]:
     #     raise ValueError(
@@ -149,7 +157,7 @@ def parallel_data_prefetch(
         arguments = [
             [func, Q, part, i, use_worker_id]
             for i, part in enumerate(
-                [data[i: i + step] for i in range(0, len(data), step)]
+                [data[i : i + step] for i in range(0, len(data), step)]
             )
         ]
     processes = []
@@ -187,13 +195,13 @@ def parallel_data_prefetch(
             p.join()
         print(f"Prefetching complete. [{time.time() - start} sec.]")
 
-    if target_data_type == 'ndarray':
+    if target_data_type == "ndarray":
         if not isinstance(gather_res[0], np.ndarray):
             return np.concatenate([np.asarray(r) for r in gather_res], axis=0)
 
         # order outputs
         return np.concatenate(gather_res, axis=0)
-    elif target_data_type == 'list':
+    elif target_data_type == "list":
         out = []
         for r in gather_res:
             out.extend(r)

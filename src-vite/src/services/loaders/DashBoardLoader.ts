@@ -4,7 +4,7 @@ export type EEGResponse = {
 }
 
 export default async function dashboardLoader(): Promise<EEGResponse[] | null> {
-    const eegResponse = await fetch("/dashboard/eeg/", {method: "GET"});
+    const eegResponse = await fetch("api/dashboard/eeg/", {method: "GET"});
 
     if (eegResponse.status >= 400) {
         console.error(`Failed to access eeg api. Reason: ${eegResponse.status}`)
