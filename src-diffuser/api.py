@@ -27,7 +27,8 @@ WEBHOOK_URL = "https://discord.com/api/webhooks/1307663613804281906/V5NO2eXZR0ly
 async def gen_img(request: Request):
     # Run the gen_eval_eeg.py script
     script_path = os.path.join("DreamDiffusion", "code", "gen_eval_eeg.py")
-    result = subprocess.run(["python", script_path], capture_output=True, text=True)
+
+    result = subprocess.run(["python", script_path], capture_output=True, text=True,cwd="DreamDiffusion/code")
     
     if result.returncode != 0:
         return {"error": result.stderr}
