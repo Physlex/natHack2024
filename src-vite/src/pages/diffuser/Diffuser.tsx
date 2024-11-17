@@ -79,23 +79,28 @@ export default function Diffuser(): JSX.Element {
     }
 
     // Call the backend to generate the diffusion
+    // Button to call backend and generate the diffusion video from multiple images.
+    // Will concatenate the videos generated.
     const handleButtonClick = async (_: React.MouseEvent<HTMLButtonElement>) => {
-        const response = await fetch("/api/diffuser/generate/", {method: "POST"});
-        if (response.status >= 400) {
-            console.error(`Failed to generate diffusion. Reason: ${response.status}`);
-            window.history.back();
-            return;
-        } else {
+        // Correct method. Just figuring out other stuff rn.
+        // Going to make a video embed pop up for now instead.
+        // const response = await fetch("/api/diffuser/generate/", {method: "POST"});
+        // if (response.status >= 400) {
+        //     console.error(`Failed to generate diffusion. Reason: ${response.status}`);
+        //     window.history.back();
+        //     return;
+        // } else {
             
-        }
+        // }
+        setDownloadEnabled(true);
+        setIsVideo(true);
     }
     // Enable/disabling download button when it is available
     //const [isDownloadEnabled, setDownloadEnabled] = useState(false);
-    const [isDownloadEnabled] = useState(false);
-    // Temporary code so I do not forget how this works
-    // const handleEnableDownload = () => {
-    //   setDownloadEnabled(true); // Enable the button
-    // };
+    const [isDownloadEnabled, setDownloadEnabled] = useState(false);
+
+    // State to toggle between Box and Video
+    const [isVideo, setIsVideo] = useState(false);
 
     return (
         <Grid container sx={{ height: '100vh' }}>
@@ -132,17 +137,38 @@ export default function Diffuser(): JSX.Element {
               padding: 1, // Add padding to avoid edges
             }}
           >
+            {/* Conditionally render Box or Video */}
+            {isVideo ? (
             <Box
                 sx={{
-                    width: 800,
-                    height: 450,
-                    borderRadius: 1,
-                    bgcolor: 'black',
-                    margin: 3
+                width: 800,
+                height: 450,
+                borderRadius: 1,
+                bgcolor: 'black',
+                margin: 3,
                 }}
             >
+                <video
+                style={{ width: '100%', height: '100%', borderRadius: '1rem' }}
+                controls
+                autoPlay
+                >
+                <source src="https://cdn.klingai.com/bs2/upload-kling-api/2154537099/image2video/Cji7cGctxFMAAAAAAYTq1Q-0_raw_video_1.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+                </video>
             </Box>
-            {/* Grid to put buttons left to right instead */}
+            ) : (
+            <Box
+                sx={{
+                width: 800,
+                height: 450,
+                borderRadius: 1,
+                bgcolor: 'black',
+                margin: 3,
+                }}
+            />
+            )}
+            {/* Box to put buttons left to right instead */}
             <Box
                 sx={{
                 display: "flex",
