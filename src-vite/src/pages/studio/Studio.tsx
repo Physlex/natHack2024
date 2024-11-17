@@ -3,10 +3,12 @@
  */
 
 
-import { Box } from '@mui/material';
+import { Divider, Paper, Stack, Typography } from '@mui/material';
+import { useState } from 'react';
+
 import Viewport from '../../components/ui/viewport/Viewport';
 import { URLForm } from '../../components/forms';
-import { useState } from 'react';
+import { default as BlackSquare } from './BlackSquare';
 
 
 // A single row of N eeg channel samples
@@ -145,19 +147,37 @@ export default function Studio(): JSX.Element {
     }
 
     return (
-        <Box id="studio" sx={{
-                paddingTop: "10px",
-                margin: "0px auto",
-                height: "70vh",
-                width: "90%"
+        <Paper
+            id="studio"
+            variant="outlined"
+            sx={{
+                padding: "10px",
+                margin: "10px auto",
+                height: "90vh",
+                width: "60%"
             }} component="div">
-            <URLForm label={"Video URL"} onSubmit={saveUrl}/>
-            { studioState.url &&
-                <Viewport
-                    url={studioState.url}
-                    onPlay={startEEGStream}
-                    onPause={stopEEGStream} />
-            }
-        </Box>
+            <Stack 
+              spacing={2}
+              justifyContent="center" 
+              alignItems="center"
+              divider={<Divider flexItem/>}>
+                <URLForm label={"Video URL"} onSubmit={saveUrl}/>
+                { studioState.url &&
+                    <Viewport
+                        url={studioState.url}
+                        onPlay={startEEGStream}
+                        onPause={stopEEGStream} />
+                }
+                { !studioState.url &&
+                    <BlackSquare>
+                        <Typography
+                            variant="h6"
+                            sx={{color: "white", fontFamily: "monospace"}}>
+                            Please Insert Video URL
+                        </Typography>
+                    </BlackSquare>
+                }
+            </Stack>
+        </Paper>
     );
 }
