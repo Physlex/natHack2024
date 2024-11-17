@@ -125,6 +125,7 @@ export default function Studio(): JSX.Element {
 
         websocket.onmessage = (event: MessageEvent) => {
             const frame = JSON.parse(event.data);
+            console.log(frame);
             switch (frame.code) {
                 case "META":
                     setStudioState({
