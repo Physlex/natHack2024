@@ -8,13 +8,13 @@ from dc_ldm.ldm_for_eeg import eLDM
 
 
 class ModelServer:
-    def __init__(self, checkpoint_path: str, pretrain_root='../data', device=torch.device('cpu')):
+    def __init__(self, checkpoint_path: str, pretrain_root: str, device=torch.device('cpu')):
         """
         Initialize ModelServer and load static models and configurations.
         """
         self.device = device
         self.pretrain_root = pretrain_root
-        self.config_path = config_path
+        self.config_path = checkpoint_path
         self.eLDM_model = None
         self.num_voxels = None
         self.config = None
