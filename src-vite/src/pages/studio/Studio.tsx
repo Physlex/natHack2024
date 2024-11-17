@@ -139,7 +139,7 @@ export default function Studio(): JSX.Element {
                     setStudioState({
                         ...studioState,
                         connectionStatus: "Connected",
-                        bucket: studioState.bucket,
+                        bucket: mutatedBucket,
                     });
                     break;
                 default:
