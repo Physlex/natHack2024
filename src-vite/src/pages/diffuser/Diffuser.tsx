@@ -6,6 +6,7 @@
 import React, { useState } from "react";
 import { Grid2 as Grid, Stack, TextField, Button, Paper, Box } from "@mui/material";
 import DownloadIcon from '@mui/icons-material/Download';
+//import CircularProgress from '@mui/material/CircularProgress';
 
 
 type SettingProps = {
@@ -79,6 +80,8 @@ export default function Diffuser(): JSX.Element {
 
     const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
 
+    //const [loading, setLoading] = React.useState(false);
+
 
     // Update the timestamp setting for the page
     const handleTimestampChange = async (setting: string) => {
@@ -103,24 +106,28 @@ export default function Diffuser(): JSX.Element {
             const taskId = responseData.task_id;
             
             if (taskId != null) {
+                console.log(taskId);
                 // Step 3: Start polling the server every 5 seconds to check for the video_url
-                let videoUrl = null;
+                //setLoading((prevLoading) => !prevLoading);
+                
                 const pollInterval = setInterval(async () => {
-                  const statusResponse = await fetch(`/api/diffuser/generate/${taskId}/`, { method: "GET" });
-        
+                  const statusResponse = await fetch(`/api/diffuser/generate/`, { method: "GET" });
+                
                   if (statusResponse.status === 200) {
                     const statusData = await statusResponse.json();
-                    videoUrl = statusData.video_url;
-        
+                    // Check if task_result and videos exist in the response
+                    const videoUrl = statusData.url;
                     if (videoUrl) {
-                      // Stop polling once the video_url is received
-                      clearInterval(pollInterval);
-                      // Proceed to handle the video URL, e.g., show the video
-                      console.log('Video URL:', videoUrl);
-                      // You can update state here to show the video or enable download
-                      setIsVideo(true); // Assuming this state will render the video
-                      setVideoUrl(videoUrl); // Set the video URL for your component
-                      setDownloadEnabled(true); // Enable download button or other UI
+                        // Stop polling once the video_url is received
+                        clearInterval(pollInterval);
+                        // Proceed to handle the video URL, e.g., show the video
+                        console.log('Video URL:', videoUrl);
+                        // You can update state here to show the video or enable download
+                        setIsVideo(true); // Assuming this state will render the video
+                        setVideoUrl(videoUrl); // Set the video URL for your component
+                        setDownloadEnabled(true); // Enable download button or other UI
+                    } else {
+                        console.error('No video URL found in the response.');
                     }
                   } else {
                     console.error(`Failed to fetch video status. Reason: ${statusResponse.status}`);
@@ -128,6 +135,12 @@ export default function Diffuser(): JSX.Element {
                 }, 5000); // 5 seconds interval
             }
         }
+
+        // TEMPORARY BELOW!!
+        // setLoading((prevLoading) => !prevLoading);
+        // setIsVideo(true); // Assuming this state will render the video
+        // setVideoUrl("https://cdn.klingai.com/bs2/upload-kling-api/2154537099/image2video/CjNQtmctxFMAAAAAAYUaYA-0_raw_video_1.mp4"); // Set the video URL for your component
+        // setDownloadEnabled(true); // Enable download button or other UI
     }
 
     const handleDownloadClick = async () => {
@@ -202,6 +215,7 @@ export default function Diffuser(): JSX.Element {
                 borderRadius: 1,
                 bgcolor: 'black',
                 margin: 3,
+                justifyContent: 'center',
                 }}
             >
                 <video
