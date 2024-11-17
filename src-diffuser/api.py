@@ -34,4 +34,4 @@ async def gen_img(eegdat: EEGData, request: Request):
     return {"result": f"{str(request.base_url)}generated/{outfilename}"}
 
 # run with:
-# uvicorn api:ddapi --port 8002 --reload
+# uvicorn api:ddapi --port 8888 --reload
