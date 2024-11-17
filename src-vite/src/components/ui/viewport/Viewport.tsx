@@ -131,11 +131,13 @@ export default function Viewport({ url, onPlay, onPause }: ViewportParams): JSX.
     }, [url]);
 
     const handlePlay = async (event: any) => {
+        console.info("Playing video...");
         event.target.playVideo();
         onPlay();
     };
 
     const handlePause = async (event: any) => {
+        console.info("Pausing video...");
         event.target.pauseVideo();
         onPause();
     }
