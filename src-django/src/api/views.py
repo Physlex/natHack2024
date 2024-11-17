@@ -2,6 +2,7 @@
 API Endpoints are defined here.
 """
 
+
 import os
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -13,8 +14,6 @@ from . import models
 import requests
 from .helpers import encode_jwt_token
 from django.http import HttpResponse
-
-
 
 
 class EEGModelReadView(APIView):
