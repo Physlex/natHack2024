@@ -6,20 +6,22 @@ import serial.tools.list_ports
 import asyncio
 import numpy as np
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import dataclasses
 from typing import *
 
 
+DONGOL_SERIAL_NUM = 'DM03GR27A'
+
 @dataclass
 class RWs_InitComms:
-    code = "INIT"
     ivl: int  # interval in ms to receive data
+    code: str = field(default="INIT")
 
 
 @dataclass
 class RWs_TermComms:
-    code = "TERM"
+    code: str = field(default="TERM")
 
 
 EEGData = List[List[float]]
@@ -27,15 +29,22 @@ EEGData = List[List[float]]
 
 @dataclass
 class EWs_EmitLatest:
-    code = "EMISSION"
     nchs: int  # channels
     n: int  # number of samples
     hz: float  # sampling rate
     data: EEGData  # chs x n array of float
+    code: str = field(default="EMISSION")
+
+@dataclass
+class EWs_EmitHardwareMetadata:
+    port: str
+    dongle_serial: str
+    code: str = field(default="META")
+
 
 
 RecvWSMsgs = Union[RWs_InitComms, RWs_TermComms]
-EmitWSMsgs = Union[EWs_EmitLatest]
+EmitWSMsgs = Union[EWs_EmitLatest, EWs_EmitHardwareMetadata]
 
 
 class WsEEGAsyncHandler:
@@ -75,6 +84,8 @@ class WsEEGAsyncHandler:
             while True:
                 message = WsEEGAsyncHandler.interpret_msg(await ws.recv())
                 if isinstance(message, RWs_InitComms):
+                    metamsg = EWs_EmitHardwareMetadata(port=self.board.params.serial_port, dongle_serial=DONGOL_SERIAL_NUM)
+                    await ws.send(json.dumps(dataclasses.asdict(metamsg)))
                     # start colecting data
                     self.ivl = message.ivl
                     self.emitting = True
@@ -124,8 +135,6 @@ async def start_srv_rand():
 
 if __name__ == "__main__":
     #asyncio.run(start_srv_rand())
-
-    DONGOL_SERIAL_NUM = 'DM03GR27A'
     ports = filter(lambda port: port.serial_number == DONGOL_SERIAL_NUM, serial.tools.list_ports.comports())
     if not ports:
         raise Exception("Dongle not found")

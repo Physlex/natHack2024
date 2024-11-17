@@ -10,6 +10,9 @@ async def hello():
     async with websockets.connect(uri, max_size=ONE_GB) as websocket:
         print("Collecting...")
         await websocket.send('{"code": "INIT", "ivl": 1000}')
+        # metadata
+        metadata = await websocket.recv()
+        print(metadata)
         for i in range(5):
             import json
 
