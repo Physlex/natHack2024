@@ -4,6 +4,7 @@ from websockets.exceptions import ConnectionClosedError
 from openbci import CytonDaisy
 import serial.tools.list_ports
 import asyncio
+import numpy as np
 import json
 from dataclasses import dataclass
 import dataclasses
@@ -86,6 +87,25 @@ class WsEEGAsyncHandler:
         except Exception as e:
             print(e.with_traceback(None))
 
+class WsEEGAsyncHandlerMock(WsEEGAsyncHandler):
+    def __init__(self, chs:int ,nperch:int,hz:int):
+        self.nchs = chs
+        self.nperch = nperch
+        self.hz = hz
+        super().__init__(None)
+
+    async def emit_eeg(self, ws: ServerConnection):
+        while self.emitting:
+            samp = np.random.random((self.nchs, self.nperch))
+            print(samp.size, "samples over", self.nchs, "channels", datetime.datetime.now())
+            msg = EWs_EmitLatest(
+                nchs=self.nchs,
+                n=samp.size,
+                hz=self.hz,
+                data=samp.tolist(),
+            )
+            await ws.send(json.dumps(dataclasses.asdict(msg)))
+            await asyncio.sleep(self.ivl / 1000)
 
 async def start_srv(serial_port: str):
     with CytonDaisy(serial_port) as board:
@@ -94,8 +114,15 @@ async def start_srv(serial_port: str):
             print("Starting EEG Emissary...")
             await asyncio.get_running_loop().create_future()
 
+async def start_srv_rand():
+    handler_cls = WsEEGAsyncHandlerMock(16,240, 125)
+    async with serve(handler_cls.handler, "", 8001, max_size=2**30):
+        print("Starting Mock EEG Emissary...")
+        await asyncio.get_running_loop().create_future()
 
 if __name__ == "__main__":
+    asyncio.run(start_srv_rand())
+
     DONGOL_SERIAL_NUM = 'DM03GR27A'
     ports = filter(lambda port: port.serial_number == DONGOL_SERIAL_NUM, serial.tools.list_ports.comports())
     if not ports:
