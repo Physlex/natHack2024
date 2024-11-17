@@ -80,9 +80,9 @@ class EEGBucket {
  * @param websocket websocket connection endpoint
  */
 type StudioProps = {
-    websocket: null | WebSocket;
+    websocket: WebSocket;
+    bucket: EEGBucket;
     url: null | string;
-    bucket: null | EEGBucket;
     connectionStatus: "Disconnected" | "Connected" | "Connection Terminated",
     serialPort: string,
     deviceID: string,
@@ -94,9 +94,9 @@ type StudioProps = {
  */
 export default function Studio(): JSX.Element {
     const [studioState, setStudioState] = useState({
-        websocket: null,
+        websocket: new WebSocket("ws://localhost:8001"),
+        bucket: new EEGBucket(),
         url: null,
-        bucket: null,
         connectionStatus: "Disconnected",
         serialPort: "",
         deviceID: "",
@@ -105,15 +105,7 @@ export default function Studio(): JSX.Element {
 
     // onPlay handler for the viewport
     const startEEGStream = () => {
-        let websocket = new WebSocket("ws://localhost:8001");
-        let bucket = new EEGBucket();
-
-        setStudioState({
-            ...studioState,
-            bucket: bucket,
-            websocket: websocket
-        });
-
+        const websocket = studioState.websocket;
         websocket.onopen = (_: Event) => {
             console.log("Socket Connected");
             websocket.send(JSON.stringify({code: "INIT", ivl: 1000}));
@@ -142,7 +134,7 @@ export default function Studio(): JSX.Element {
                     });
                     break;
                 case "EMISSION":
-                    bucket.pool.push((frame as EEGDataFrame).data);
+                    studioState.bucket?.pool.push((frame as EEGDataFrame).data);
                     setStudioState({
                         ...studioState,
                         connectionStatus: "Connected"
@@ -151,6 +143,10 @@ export default function Studio(): JSX.Element {
                 default:
                     break;
             }
+            setStudioState({
+                ...studioState,
+                bucket: new EEGBucket(),
+            });        
         };
 
         websocket.onclose = (event: CloseEvent) => {
