@@ -83,6 +83,7 @@ class WsEEGAsyncHandler:
         try:
             while True:
                 message = WsEEGAsyncHandler.interpret_msg(await ws.recv())
+                print(message)
                 if isinstance(message, RWs_InitComms):
                     metamsg = EWs_EmitHardwareMetadata(port=self.board.params.serial_port, dongle_serial=DONGOL_SERIAL_NUM)
                     await ws.send(json.dumps(dataclasses.asdict(metamsg)))

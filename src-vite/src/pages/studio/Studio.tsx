@@ -3,11 +3,11 @@
  */
 
 
-import { Button, Box, Stack, Paper, Typography, Grid2 as Grid } from '@mui/material';
+import { Box, Button, Grid2 as Grid, Paper, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 
+import { EEGNameForm, URLForm } from '../../components/forms';
 import Viewport from '../../components/ui/viewport/Viewport';
-import { URLForm, EEGNameForm } from '../../components/forms';
 import { default as BlackSquare } from './BlackSquare';
 import ConnectionSidebar from './ConnectionStatus';
 
@@ -125,7 +125,7 @@ export default function Studio(): JSX.Element {
 
         websocket.onmessage = (event: MessageEvent) => {
             const frame = JSON.parse(event.data);
-            console.log(frame);
+            console.log("frame: ", frame);
             switch (frame.code) {
                 case "META":
                     setStudioState({
