@@ -10,10 +10,9 @@ from rest_framework.views import APIView
 from . import serializers
 from . import models
 import requests
-from helpers import encode_jwt_token
+from .helpers import encode_jwt_token
 
-ak = "7b5b3413fac847e79f4bdaf3d3d8fdc0" # fill access key kling
-sk = "a159a6177fc745eca99f719c9f36941f" # fill secret key kling
+
 
 
 class EEGModelReadView(APIView):
@@ -55,12 +54,10 @@ class EEGModelCreateView(APIView):
 class DiffuserGenerateVideoView(APIView):
     
     def __init__(self):
-        authorization = encode_jwt_token(ak, sk)
+        self.ak = "7b5b3413fac847e79f4bdaf3d3d8fdc0" # fill access key kling
+        self.sk = "a159a6177fc745eca99f719c9f36941f" # fill secret key kling
         self.response_dict = {}
         self.task_id = -1
-        self.headers = {'Content-Type': 'application/json',
-                   'Authorization': authorization
-                   }
         self.video_info = {}
         self.video_url = ''
 
@@ -68,38 +65,63 @@ class DiffuserGenerateVideoView(APIView):
         """
         Sends a request to the kling api to start converting an image into a 5 second video.
         """
+        self.authorization = encode_jwt_token(self.ak, self.sk)
+        print(f'auth: {self.authorization}')
+        self.headers = {'Content-Type': 'application/json',
+                   'Authorization': f'Bearer {self.authorization}'
+                   }
         url = 'https://api.klingai.com/v1/videos/image2video'
         # Example data for testing
         data = {'model_name': 'kling-v1',
-                'image': 'https://i.ebayimg.com/images/g/FmgAAOSwWeZfhwGA/s-l1600.jpg'
+                'image': 'https://cdn.discordapp.com/attachments/778329674215587841/1307550163048333353/IMG_20241116_203703.jpg?ex=673ab67b&is=673964fb&hm=b1b9461875a49e9e83256f2993e83509346c4b9ff55a578c648151ec7d1e4a48&',
+                'prompt': 'Make the video funny'
             }
         # Send post request
         response = requests.post(url, headers=self.headers, json=data)
+        # Debug
+        print(f"POST Response Status Code: {response.status_code}")
+        print(f"POST Response Content: {response.text}")
         # Turn response into dictionary
         self.response_dict = response.json()
         try:
             # Extract the task_id from the response
             task_id = self.response_dict.get('data', {}).get('task_id', None)
-            if task_id is None:
-                print("Task ID not found in the response!")
+            if not task_id:
+                print(f"Task ID missing! Response: {self.response_dict}")
             else:
-                print(f"Task ID: {task_id}")
+                request.session['task_id'] = task_id 
+                print(f"Task ID successfully extracted: {self.task_id}")
+                
         except Exception as e:
             print(f"Error while extracting task_id: {e}")
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         
         
         return Response(status=status.HTTP_201_CREATED)
     
-    def get(self, request: Request, id: int) -> Response:
+    def get(self, request: Request) -> Response:
         """
         Sends a request to the kling api to retrieve the video that was generated.
         """
+        # Current task id: Cji7cGctxFMAAAAAAYQZmQ
+        self.authorization = encode_jwt_token(self.ak, self.sk)
+        print(f'auth: {self.authorization}')
+        self.headers = {'Content-Type': 'application/json',
+                   'Authorization': f'Bearer {self.authorization}'
+                   }
+        
+        task_id = request.session.get('task_id', None)  # Retrieve task_id from the session
         # I'm not sure if this URL is correct
-        url = f'https://api.klingai.com/v1/videos/image2video/{self.task_id}'
+        url = f'https://api.klingai.com/v1/videos/image2video/Cji7cGctxFMAAAAAAYaNkg'
+        # url = f'https://api.klingai.com/v1/videos/image2video/{task_id}'
+        print(f'url: {url}')
         # Example data for testing
         params = {'task_id': self.task_id}
         # Send get request
         response = requests.get(url, headers=self.headers, params=params)
+        # Debug
+        print(f"GET Response Status Code: {response.status_code}")
+        print(f"GET Response Content: {response.text}")
         self.video_info = response.json()
         try:
             # Extract the task_id from the response
@@ -110,5 +132,6 @@ class DiffuserGenerateVideoView(APIView):
                 print(f"Video URL: {self.video_url}")
         except Exception as e:
             print(f"Error while extracting video url: {e}")
+            return Response(data=self.video_info['data'], status=status.HTTP_418_IM_A_TEAPOT)
         
-        return Response(data=response.data, status=status.HTTP_200_OK)
+        return Response(data=self.video_info['data'], status=status.HTTP_200_OK)

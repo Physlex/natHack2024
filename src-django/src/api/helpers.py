@@ -92,7 +92,7 @@ def interpolateData(data_path, interpolation_type='fourier', num_points=500):
     plt.show()
     
 def generate_cling_video(image_path):
-    # does nothing rn
+    # does nothing rn, useless, might delete
     authorization = encode_jwt_token(ak, sk)
     print(authorization) # Printing the generated API_TOKEN
 
