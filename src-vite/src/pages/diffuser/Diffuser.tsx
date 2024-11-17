@@ -96,6 +96,34 @@ export default function Diffuser(): JSX.Element {
     // Button to call backend and generate the diffusion video from multiple images.
     // Will concatenate the videos generated.
     const handleButtonClick = async (_: React.MouseEvent<HTMLButtonElement>) => {
+        // This is fake, depends on how I get the data
+        // const urls = await fetch("fake/url", {method: "POST"});
+        // if (urls.status == 200) {
+        //     const urlData = await urls.json();
+        //     const urlList = urlData.urls;
+        //     for (const [key, value] of Object.entries(urlList)) {
+        //         console.log(`Key: ${key}, URL: ${value}`);
+        //     }
+        // }
+        // Example data for testing
+        const urlData = {
+            urls: {
+              url1: "https://media.wired.com/photos/5ca648a330f00e47fd82ae77/master/pass/Culture_Matrix_Code_corridor.jpg",
+              url2: "https://images.pexels.com/photos/158971/pexels-photo-158971.jpeg",
+              url3: "https://cdn.prod.website-files.com/5ca1479b0620587913fd10e6/5caa82d53be19227dd7e7292_IMG_20190407_170000%20Small%20Cropped.jpg",
+            }
+          };
+        let activeRenders = 3;
+        // Access the `urls` object
+        const urls = urlData.urls;
+        for (const [key, value] of Object.entries(urls)) {
+            if (activeRenders > 0) {
+                
+                activeRenders -= 1;
+            }
+            console.log(`Key: ${key}, URL: ${value}`);
+        }
+
         const response = await fetch("/api/diffuser/generate/", {method: "POST"});
         if (response.status >= 400) {
             console.error(`Failed to generate diffusion. Reason: ${response.status}`);
