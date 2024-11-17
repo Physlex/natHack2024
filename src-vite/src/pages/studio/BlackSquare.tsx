@@ -3,14 +3,14 @@
  */
 
 
-import { Paper } from '@mui/material';
+import { Box } from '@mui/material';
 import { useEffect, useState } from 'react';
 
 
 // Styles for the black square
 const blackSquareStyles = {
     display: "flex",
-    margin: "0 auto",
+    margin: "70px auto",
     flexGrow: 1,
     backgroundColor: "black",
     alignItems: "center",
@@ -62,13 +62,12 @@ export default function BlackSquare({ children }: BlackSquareParams): JSX.Elemen
     }, []);
 
     return (
-        <Paper
-            variant="outlined"
-            sx={{
-                ...blackSquareStyles,
-                height: `${blackSquareState.height}px`,
-                width: `${blackSquareState.width}px`,}}>
-            {children}
-        </Paper>
+            <Box
+                sx={{
+                    ...blackSquareStyles,
+                    height: `${blackSquareState.height}px`,
+                    width: `${blackSquareState.width}px`,}}>
+                {children}
+            </Box>
     );
 }

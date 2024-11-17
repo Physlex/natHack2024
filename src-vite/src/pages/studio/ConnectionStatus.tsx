@@ -44,7 +44,7 @@ export default function ConnectionSidebar({
     return (
         <Stack
             className="connection-status"
-            spacing={4}
+            spacing={3}
             divider={<Divider />}
             height="80vh">
             <Box>

@@ -3,7 +3,7 @@
  */
 
 
-import { Box, Paper, Typography, Grid2 as Grid } from '@mui/material';
+import { Button, Box, Paper, Typography, Grid2 as Grid } from '@mui/material';
 import { useState } from 'react';
 
 import Viewport from '../../components/ui/viewport/Viewport';
@@ -163,11 +163,24 @@ export default function Studio(): JSX.Element {
     };
 
     // Save the url of the url form
-    const saveUrl = async (url?: string) => {
+    const saveUrl = (url?: string) => {
         if (url === undefined) {
             console.info("Invalid url submitted");
             return;
         }
+        
+        const youtubePattern = /https:\/\/(www.)?youtube.com/;
+        const youtubeRE = new RegExp(youtubePattern);
+        if (!youtubeRE.test(url)) {
+            setStudioState({...studioState, url: ""});
+        }
+
+        const watchRE = /\/watch\?v=/;
+        if (!watchRE.test(url)) {
+            setStudioState({...studioState, url: ""});
+        }
+
+        console.info("Saving: ", url);
         setStudioState({...studioState, url: url});
     }
 
@@ -193,6 +206,7 @@ export default function Studio(): JSX.Element {
                         variant="outlined" elevation={2}
                         sx={{padding: "10px"}}>
                         <Box height="80vh">
+                            <URLForm label={"Video URL"} onChange={saveUrl}/>
                             { studioState.url &&
                                 <Viewport
                                     url={studioState.url}
@@ -222,7 +236,9 @@ export default function Studio(): JSX.Element {
                             serialPort={"TODO: Undefined"}
                             port={8000}
                             startTime={startTime}>
-                            <URLForm label={"Video URL"} onSubmit={saveUrl}/>
+                            <Button id="start-session-button" onClick={startEEGStream}>
+                                Start Session
+                            </Button>
                         </ConnectionSidebar>
                     </Paper>
                 </Grid>

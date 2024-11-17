@@ -3,7 +3,7 @@
  */
 
 
-import { Stack, Button, TextField } from '@mui/material';
+import { Stack, TextField } from '@mui/material';
 import React, { useState } from 'react';
 
 
@@ -13,7 +13,7 @@ import React, { useState } from 'react';
  */
 type URLFormParams = {
     label: string;
-    onSubmit: (url?: string) => void;
+    onChange: (url?: string) => void;
 }
 
 /**
@@ -26,7 +26,7 @@ type URLProps = {
 /**
  * @returns The youtube url form.
  */
-export default function URLForm({ label, onSubmit }: URLFormParams): JSX.Element {
+export default function URLForm({ label, onChange }: URLFormParams): JSX.Element {
     const [urlFormState, setUrlFormState] = useState({
         url: ""
     } as URLProps);
@@ -34,14 +34,13 @@ export default function URLForm({ label, onSubmit }: URLFormParams): JSX.Element
     // Forwards submission to the parent element, allowing the parent access to the child
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        console.info("Submitted url: ", urlFormState.url);
-        onSubmit(urlFormState.url);
     }
 
     // Handle change implementation
     const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const data = event.target.value;
         setUrlFormState({...urlFormState, url: data});
+        onChange(data);
     }
 
     return (
@@ -65,9 +64,6 @@ export default function URLForm({ label, onSubmit }: URLFormParams): JSX.Element
                 required={true}
                 fullWidth={true}
                 variant="outlined" />
-            <Button id="start-session-button" type="submit">
-                Start Session
-            </Button>
         </Stack>
     );
 }
