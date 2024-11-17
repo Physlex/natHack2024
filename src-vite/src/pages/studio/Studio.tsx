@@ -144,10 +144,6 @@ export default function Studio(): JSX.Element {
                 default:
                     break;
             }
-            setStudioState({
-                ...studioState,
-                bucket: new EEGBucket(),
-            });        
         };
 
         websocket.onclose = (event: CloseEvent) => {
