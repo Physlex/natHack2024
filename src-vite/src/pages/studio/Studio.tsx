@@ -26,7 +26,7 @@ type EEGDataPacket = EEGDataChannel[];
  * @param hz The samplerate of the underlying dataset.
  */
 type EEGDataFrame = {
-    code: "EMISSION" | "INIT" | "TERM" | "HEADER";
+    code: "EMISSION" | "INIT" | "TERM" | "META";
     n: number;
     nchs: number;
     data: EEGDataPacket;
@@ -84,6 +84,8 @@ type StudioProps = {
     url: null | string;
     bucket: null | EEGBucket;
     connectionStatus: "Disconnected" | "Connected" | "Connection Terminated",
+    serialPort: string,
+    deviceID: string,
     name: string,
 }
 
@@ -96,7 +98,9 @@ export default function Studio(): JSX.Element {
         url: null,
         bucket: null,
         connectionStatus: "Disconnected",
-        name: ""
+        serialPort: "",
+        deviceID: "",
+        name: "",
     } as StudioProps);
 
     // onPlay handler for the viewport
@@ -129,13 +133,15 @@ export default function Studio(): JSX.Element {
 
         websocket.onmessage = (event: MessageEvent) => {
             console.log("Message received: ", event.data);
-            const frame = JSON.parse(event.data) as EEGDataFrame;
+            const frame = JSON.parse(event.data);
             switch (frame.code) {
-                case "HEADER":
-
+                case "META":
+                    setStudioState({
+                        ...studioState,
+                    });
                     break;
                 case "EMISSION":
-                    bucket.pool.push(frame.data);
+                    bucket.pool.push((frame as EEGDataFrame).data);
                     setStudioState({
                         ...studioState,
                         connectionStatus: "Connected"
