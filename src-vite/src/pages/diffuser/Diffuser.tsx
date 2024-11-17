@@ -113,16 +113,71 @@ export default function Diffuser(): JSX.Element {
               url3: "https://cdn.prod.website-files.com/5ca1479b0620587913fd10e6/5caa82d53be19227dd7e7292_IMG_20190407_170000%20Small%20Cropped.jpg",
             }
           };
-        let activeRenders = 3;
         // Access the `urls` object
         const urls = urlData.urls;
-        for (const [key, value] of Object.entries(urls)) {
-            if (activeRenders > 0) {
-                
-                activeRenders -= 1;
+
+        // Array of fetch promises for concurrent calls
+        const fetchTasks = async () => {
+            const taskPromises = Array.from({ length: 5 }).map(() =>
+            fetch("/api/diffuser/generate/", { method: "POST" })
+                .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+                })
+                .then((responseData) => responseData.task_id) // Extract task_id from response
+                .catch((error) => {
+                console.error("Error fetching task:", error);
+                return null; // Handle error for individual request
+                })
+            );
+        
+            // Wait for all fetch calls to resolve
+            const taskIds = await Promise.all(taskPromises);
+        
+            // Filter out any null results (failed requests)
+            const validTaskIds = taskIds.filter((id) => id !== null);
+            
+            console.log("Fetched Task IDs:", validTaskIds);
+            return validTaskIds;
+        };
+        
+        const taskIds = fetchTasks();
+
+        const runTask = async (taskId: string) => {
+        const pollInterval = setInterval(async () => {
+            try {
+            const statusResponse = await fetch(`/api/diffuser/generate/${taskId}`, { method: "GET" });
+            if (statusResponse.status === 200) {
+                const statusData = await statusResponse.json();
+                const videoUrl = statusData?.task_result?.videos?.[0]?.url;
+
+                if (videoUrl) {
+                clearInterval(pollInterval); // Stop polling once the video is ready
+                console.log(`Task ${taskId} completed. Video URL: ${videoUrl}`);
+
+                }
+            } else {
+                console.error(`Task ${taskId} failed with status: ${statusResponse.status}`);
             }
-            console.log(`Key: ${key}, URL: ${value}`);
-        }
+            } catch (error) {
+            console.error(`Error polling task ${taskId}:`, error);
+            }
+        }, 5000); // Poll every 5 seconds
+        };
+
+        const handleMultipleTasks = async () => {
+            const tasks = (await taskIds).map((taskId: string) => runTask(taskId));
+            await Promise.all(tasks); // Wait for all tasks to complete if needed
+
+            // Update state or UI here
+            setIsVideo(true); 
+            setVideoUrl(videoUrl); 
+            setDownloadEnabled(true); 
+        };
+
+        handleMultipleTasks();
 
         const response = await fetch("/api/diffuser/generate/", {method: "POST"});
         if (response.status >= 400) {

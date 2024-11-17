@@ -106,44 +106,46 @@ class DiffuserGenerateVideoView(APIView):
         data = {'task_id': task_id}
         return Response(status=status.HTTP_201_CREATED, data=data)
     
-    def get(self, request: Request) -> Response:
+    def get(self, request: Request, task_id: str) -> Response:
         """
-        Sends a request to the kling api to retrieve the video that was generated.
+        Sends a request to the Kling API to retrieve the video that was generated for a given task_id.
         """
-        # Current task id: Cji7cGctxFMAAAAAAYQZmQ
+        # Authorization
         self.authorization = encode_jwt_token(self.ak, self.sk)
-        print(f'auth: {self.authorization}')
-        self.headers = {'Content-Type': 'application/json',
-                   'Authorization': f'Bearer {self.authorization}'
-                   }
+        self.headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.authorization}'
+        }
         
-        # I don't know if this works!!
-        task_id = request.session.get('task_id', None)  # Retrieve task_id from the session
-        # I'm not sure if this URL is correct
-        # url = f'https://api.klingai.com/v1/videos/image2video/Cji7cGctxFMAAAAAAYaNkg'
+        # Construct the URL using the task_id
         url = f'https://api.klingai.com/v1/videos/image2video/{task_id}'
-        print(f'url: {url}')
-        # Example data for testing
-        params = {'task_id': self.task_id}
-        # Send get request
-        response = requests.get(url, headers=self.headers, params=params)
-        # Debug
-        print(f"GET Response Status Code: {response.status_code}")
-        print(f"GET Response Content: {response.text}")
-        self.video_info = response.json()
-        try:
-            # Extract the task_id from the response
-            self.video_url = self.video_info["data"]["task_result"]["videos"][0]["url"]
-            if self.video_url is None:
-                print("Video URL not found in the response!")
-            else:
-                print(f"Video URL: {self.video_url}")
-        except Exception as e:
-            print(f"Error while extracting video url: {e}")
-            return Response(data=self.video_info['data'], status=status.HTTP_418_IM_A_TEAPOT)
+        print(f'Requesting video info from URL: {url}')
         
-        data = {"url": self.video_url}
-        return Response(data=data, status=status.HTTP_200_OK)
+        try:
+            # Send GET request to the Kling API
+            response = requests.get(url, headers=self.headers)
+            print(f"GET Response Status Code: {response.status_code}")
+            print(f"GET Response Content: {response.text}")
+            
+            if response.status_code == 200:
+                video_info = response.json()
+                video_url = video_info["data"]["task_result"]["videos"][0]["url"]
+                return Response(data={"url": video_url}, status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    data={"error": "Failed to retrieve video info from Kling API."},
+                    status=response.status_code
+                )
+        except KeyError:
+            return Response(
+                data={"error": "Unexpected response structure from Kling API."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        except Exception as e:
+            return Response(
+                data={"error": f"An error occurred: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
     
 
 class DownloadVideoView(APIView):

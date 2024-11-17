@@ -36,7 +36,7 @@ urlpatterns = [
     ),
     # DIFFUSER
     path(
-        "diffuser/generate/",
+        "diffuser/generate/<str:task_id>/",
         views.DiffuserGenerateVideoView.as_view(),
         name="ML Endpoint",
     ),
