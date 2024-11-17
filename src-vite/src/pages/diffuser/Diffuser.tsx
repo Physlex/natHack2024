@@ -127,10 +127,9 @@ export default function Diffuser(): JSX.Element {
               height: '100%',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center', // Space buttons apart
+              justifyContent: 'top', // Space buttons apart
               flexDirection: 'column', 
-              padding: 5, // Add padding to avoid edges
-              margin: 3,
+              padding: 1, // Add padding to avoid edges
             }}
           >
             <Box
