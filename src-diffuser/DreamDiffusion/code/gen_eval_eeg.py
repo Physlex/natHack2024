@@ -1,8 +1,18 @@
-import os
-import datetime
+import os, sys
+import numpy as np
 import torch
-from torchvision import transforms
-from some_module import create_EEG_dataset  # Replace 'some_module' with the actual module name
+from einops import rearrange
+from PIL import Image
+import torchvision.transforms as transforms
+from config import *
+import wandb
+import datetime
+import argparse
+
+
+from config import Config_Generative_Model
+from dataset import create_EEG_dataset
+from dc_ldm.ldm_for_eeg import eLDM
 
 # update paths
 config.root_path = '../data'
