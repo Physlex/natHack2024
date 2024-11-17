@@ -19,10 +19,13 @@ const youtubeViewerStyles = {
  * @param url The video url to play
  * @param onPlay a hook to allow external components to drive the behaviour of the
  * viewport
+ * @param onPause a hook to allow external components to drive the behaviour of the
+ * viewport
  */
 type ViewportParams = {
     url: string;
     onPlay: () => void;
+    onPause: () => void;
 }
 
 /**
@@ -42,7 +45,7 @@ type ViewportProps = {
 /**
  * @return Viewport component.
  */
-export default function Viewport({ url, onPlay }: ViewportParams): JSX.Element {
+export default function Viewport({ url, onPlay, onPause }: ViewportParams): JSX.Element {
     const [viewportState, setViewportState] = useState({
         url: url,
         videoID: "",
@@ -127,8 +130,6 @@ export default function Viewport({ url, onPlay }: ViewportParams): JSX.Element {
         return (() => {window.removeEventListener("resize", handleSizing)});
     }, [url]);
 
-    console.info("viewport video id: ", viewportState.videoID);
-
     return (
         <Box 
             className="viewport"
@@ -139,6 +140,7 @@ export default function Viewport({ url, onPlay }: ViewportParams): JSX.Element {
                 opts={viewportState.opts}
                 onReady={onReady}
                 onPlay={onPlay}
+                onPause={onPause}
                 >
             </Youtube>
         </Box>

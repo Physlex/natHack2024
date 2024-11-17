@@ -83,7 +83,7 @@ export default function Studio(): JSX.Element {
         bucket: new EEGBucket(),
     } as StudioProps);
 
-    // OnPlay handler for the viewport
+    // onPlay handler for the viewport
     const startEEGStream = () => {
         let websocket = new WebSocket("ws://localhost:8001");
 
@@ -118,15 +118,24 @@ export default function Studio(): JSX.Element {
         };
     };
 
+    // onPause handler for the viewport
+    const stopEEGStream = () => {
+        if (studioState.websocket !== null) { studioState.websocket.close(); }
+    };
+
     // Save the url of the url form
     const saveUrl = async (url?: string) => {
         if (url === undefined || url === null) {
             console.info("Invalid url submitted");
             return;
         }
+
         setStudioState({
             ...studioState,
-            viewport: <Viewport url={url} onPlay={startEEGStream} />
+            viewport: <Viewport
+                url={url}
+                onPlay={startEEGStream}
+                onPause={stopEEGStream} />
         });
     }
 
