@@ -6,7 +6,7 @@
 import { Box } from '@mui/material';
 import Viewport from '../../components/ui/viewport/Viewport';
 import { URLForm } from '../../components/forms';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 
 // A single row of N eeg channel samples
