@@ -14,6 +14,7 @@ const navBarLinkStyles = {
     fontWeight: 700,
     color: 'white',
     textDecoration: 'none',
+    textTransform: 'none',
 };
 
 /**
@@ -50,6 +51,7 @@ export function NavbarButton({
                         noWrap
                         component="div"
                         align="center"
+                        paddingRight="20px"
                         sx={navBarLinkStyles}>
                         {label}
                     </Typography>

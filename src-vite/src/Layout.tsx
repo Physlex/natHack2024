@@ -10,7 +10,7 @@ import {
     createRoutesFromElements
 } from 'react-router-dom';
 
-import { Studio, Diffuser, Login } from './pages';
+import { Studio, Diffuser, Login, Dashboard } from './pages';
 import { Header, Footer } from './components/ui';
 import { CssBaseline } from '@mui/material';
 
@@ -35,6 +35,7 @@ export const layoutRouter = createBrowserRouter(createRoutesFromElements(
         <Route path="/" element={<Login />} />
         <Route path="/studio" element={<Studio />} />
         <Route path="/diffuser" element={<Diffuser />} />
+        <Route path="/dashboard" element={<Dashboard />} />
     </Route>
 ),
 {

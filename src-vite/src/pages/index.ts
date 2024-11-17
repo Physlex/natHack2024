@@ -6,3 +6,4 @@
 export { default as Login } from './login/Login';
 export { default as Studio } from './studio/Studio';
 export { default as Diffuser } from './diffuser/Diffuser';
+export { default as Dashboard } from './dashboard/Dashboard';
