@@ -14,6 +14,7 @@ export default function Header(): JSX.Element {
         <div id="header">
             <Navbar title="Dream Diffusion">
                 <NavbarButton label="Studio" to="/studio" />
+                <NavbarButton label="Dashboard" to="/dashboard" />
                 <NavbarButton label="Diffuser" to="/diffuser" />
             </Navbar>
         </div>

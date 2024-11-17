@@ -24,4 +24,10 @@ urlpatterns = [
         views.DiffuserGenerateVideoView.as_view(),
         name="ML Endpoint",
     ),
+    # Downloading Videos
+    path(
+        "diffuser/download-video/",
+        views.DownloadVideoView.as_view(),
+        name="Download Video",
+    ),
 ]

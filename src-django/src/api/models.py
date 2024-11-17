@@ -17,4 +17,5 @@ class EEGChannel(models.Model):
 
 
 class EEGModel(models.Model):
+    name = models.CharField(max_length=255)
     date = models.DateTimeField(auto_now_add=True)

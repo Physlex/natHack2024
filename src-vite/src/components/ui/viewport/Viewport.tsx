@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 
 const youtubeViewerStyles = {
     display: "flex",
-    margin: "0 auto",
+    margin: "70px auto",
     alignItems: "center",
     width: "100%",
     justifyContent: "center",

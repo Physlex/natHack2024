@@ -3,11 +3,11 @@
  */
 
 
-import { Box, Paper, Typography, Grid2 as Grid } from '@mui/material';
+import { Button, Box, Stack, Paper, Typography, Grid2 as Grid } from '@mui/material';
 import { useState } from 'react';
 
 import Viewport from '../../components/ui/viewport/Viewport';
-import { URLForm } from '../../components/forms';
+import { URLForm, EEGNameForm } from '../../components/forms';
 import { default as BlackSquare } from './BlackSquare';
 import ConnectionSidebar from './ConnectionStatus';
 
@@ -48,8 +48,9 @@ class EEGBucket {
     }
 
     // Sends the currently collected pool of data to the backend
-    async send(): Promise<number> {
+    async send(name: string): Promise<number> {
         const eegData = {
+            name: name,
             timeseries: this.pool.slice(0, 16),
             timestamps: this.pool[29],
         };
@@ -82,7 +83,8 @@ type StudioProps = {
     websocket: null | WebSocket;
     url: null | string;
     bucket: null | EEGBucket;
-    connectionStatus: "Disconnected" | "Connected" | "Connection Terminated"
+    connectionStatus: "Disconnected" | "Connected" | "Connection Terminated",
+    name: string,
 }
 
 /**
@@ -93,7 +95,8 @@ export default function Studio(): JSX.Element {
         websocket: null,
         url: null,
         bucket: null,
-        connectionStatus: "Disconnected"
+        connectionStatus: "Disconnected",
+        name: ""
     } as StudioProps);
 
     // onPlay handler for the viewport
@@ -146,7 +149,7 @@ export default function Studio(): JSX.Element {
         websocket.onclose = (event: CloseEvent) => {
             console.log("Websocket connection close: ", event);
             console.log("Code: ", event.code, "\nReason: ", event.reason);
-            bucket.send();
+            bucket.send(studioState.name);
             setStudioState({
                 ...studioState,
                 connectionStatus: "Disconnected",
@@ -163,12 +166,30 @@ export default function Studio(): JSX.Element {
     };
 
     // Save the url of the url form
-    const saveUrl = async (url?: string) => {
+    const saveUrl = (url?: string) => {
         if (url === undefined) {
             console.info("Invalid url submitted");
             return;
         }
+        
+        const youtubePattern = /https:\/\/(www.)?youtube.com/;
+        const youtubeRE = new RegExp(youtubePattern);
+        if (!youtubeRE.test(url)) {
+            setStudioState({...studioState, url: ""});
+        }
+
+        const watchRE = /\/watch\?v=/;
+        if (!watchRE.test(url)) {
+            setStudioState({...studioState, url: ""});
+        }
+
+        console.info("Saving: ", url);
         setStudioState({...studioState, url: url});
+    }
+
+    const saveName = (name: string) => {
+        console.info("Changing name: ", name)
+        setStudioState({...studioState, name: name});
     }
 
     // Created at the start of the render, and never again.
@@ -193,6 +214,10 @@ export default function Studio(): JSX.Element {
                         variant="outlined" elevation={2}
                         sx={{padding: "10px"}}>
                         <Box height="80vh">
+                            <Stack flexDirection="row">
+                                <URLForm label={"Video URL"} onChange={saveUrl}/>
+                                <EEGNameForm onChange={saveName} />
+                            </Stack>
                             { studioState.url &&
                                 <Viewport
                                     url={studioState.url}
@@ -222,7 +247,9 @@ export default function Studio(): JSX.Element {
                             serialPort={"TODO: Undefined"}
                             port={8000}
                             startTime={startTime}>
-                            <URLForm label={"Video URL"} onSubmit={saveUrl}/>
+                            <Button id="start-session-button" onClick={startEEGStream}>
+                                Start Session
+                            </Button>
                         </ConnectionSidebar>
                     </Paper>
                 </Grid>
