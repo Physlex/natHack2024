@@ -37,7 +37,7 @@ dist-ssr
 
 # données à la diffuseur
 src-diffuser/DreamDiffusion/data
-src-diffuser/DreamDiffusion/eegdata_out
+src-diffuser/DreamDiffusion/eegdataset
 src-diffuser/results
 src-diffuser/generated
 
