@@ -8,6 +8,7 @@ db.sqlite3
 *.jpg
 *.mp4
 *.mp3
+*.webm
 
 # Logs
 logs
@@ -37,3 +38,4 @@ dist-ssr
 # données à la diffuseur
 src-diffuser/data
 src-diffuser/eegdata_out
+test.webm
