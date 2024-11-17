@@ -80,6 +80,7 @@ export default function Diffuser(): JSX.Element {
 
     const [videoUrl, setVideoUrl] = useState<string | undefined>(undefined);
 
+
     //const [loading, setLoading] = React.useState(false);
 
 
@@ -91,6 +92,41 @@ export default function Diffuser(): JSX.Element {
         })
     }
 
+    // testing only!
+    const handlePostClick = async (_: React.MouseEvent<HTMLButtonElement>) => {
+        fetch("/api/diffuser/download-all-videos/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ urls: [
+                'https://cdn.klingai.com/bs2/upload-kling-api/2154537099/image2video/Cji7cGctxFMAAAAAAZgtEw-0_raw_video_1.mp4',
+                'https://cdn.klingai.com/bs2/upload-kling-api/2154537099/image2video/ChGoW2ctwmwAAAAAAZh40g-0_raw_video_1.mp4',
+                'https://cdn.klingai.com/bs2/upload-kling-api/2154537099/image2video/CjNQtmctxFMAAAAAAZg2SA-0_raw_video_1.mp4'
+            ] })
+          })
+          .then(response => response.json())
+          .then(data => {
+              console.log("Server response:", data);
+              const videoUrl = data['video path'];  // Access the 'video path' from the response
+          
+              // Create a video element and embed it into the DOM
+              const videoElement = document.createElement('video');
+              videoElement.src = videoUrl;  // Use the video URL received from the server
+              videoElement.controls = true;  // Show controls like play/pause
+              document.body.appendChild(videoElement);  // Append video to the body (or any container)
+          
+              // Optionally, auto-play the video
+              videoElement.autoplay = true;
+          })
+          .catch(error => console.error("Error:", error));
+        
+        // Update state or UI here
+        // Update these when the video is updated
+        setIsVideo(true); 
+        // setVideoUrl(videoUrl); 
+        setDownloadEnabled(true);
+    }
 
     // Call the backend to generate the diffusion
     // Button to call backend and generate the diffusion video from multiple images.
@@ -108,12 +144,10 @@ export default function Diffuser(): JSX.Element {
         // Example data for testing
         const urlData = {
             urls: {
-              url1: "https://media.wired.com/photos/5ca648a330f00e47fd82ae77/master/pass/Culture_Matrix_Code_corridor.jpg",
-              url2: "https://images.pexels.com/photos/158971/pexels-photo-158971.jpeg",
-              url3: "https://cdn.prod.website-files.com/5ca1479b0620587913fd10e6/5caa82d53be19227dd7e7292_IMG_20190407_170000%20Small%20Cropped.jpg",
+              url3: "https://media.discordapp.net/attachments/1289316376904994906/1307745651815354389/bikestim.PNG?ex=673b6c8c&is=673a1b0c&hm=e73c71d07b50ff8cfef4cc411efd86ec0c565dd34f4c2f57960c16080f585aba&=&format=webp&quality=lossless&width=1960&height=976",
             },
           };
-          
+        const generatedUrls: any[] = [];
           // Access the `urls` object and convert it to an array of URL values
           const urls = Object.values(urlData.urls);
           
@@ -162,6 +196,7 @@ export default function Diffuser(): JSX.Element {
 
                 if (videoUrl) {
                 clearInterval(pollInterval); // Stop polling once the video is ready
+                generatedUrls.push(videoUrl)
                 console.log(`Task ${taskId} completed. Video URL: ${videoUrl}`);
 
                 }
@@ -176,12 +211,31 @@ export default function Diffuser(): JSX.Element {
 
         const handleMultipleTasks = async () => {
             const tasks = (await taskIds).map((taskId: string) => runTask(taskId));
+            
             await Promise.all(tasks); // Wait for all tasks to complete if needed
-
+            fetch("/api/videos/download", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ urls: generatedUrls })
+              })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Server response:", data);
+                    // Access the 'video path' key from the server response
+                    //setVideoUrl(data['video path']);
+                    setVideoUrl(generatedUrls[0]);
+                    console.log("Video Path:", videoUrl);
+                    // You can use this path to display the video or trigger a download
+                  })
+                .catch(error => console.error("Error:", error));
+            
             // Update state or UI here
+            // Update these when the video is updated
             setIsVideo(true); 
             setVideoUrl(videoUrl); 
-            setDownloadEnabled(true); 
+            setDownloadEnabled(true);
         };
 
         handleMultipleTasks();
@@ -355,6 +409,14 @@ export default function Diffuser(): JSX.Element {
                     disabled={!isDownloadEnabled} // Button is disabled unless state is true
                     >
                     Download
+                </Button>
+                <Button
+                    className="test-button"
+                    variant="outlined"
+                    size="large"
+                    onClick={handlePostClick}
+                    >
+                    Post!
                 </Button>
             </Box>
           </Paper>
