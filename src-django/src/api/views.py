@@ -203,3 +203,47 @@ class DashboardAttentionView(APIView):
             "attentionseries": attention_series,
             "timesamples": attention_timesamples
         }, status=status.HTTP_200_OK)
+
+class DashboardEEGView(APIView):
+    def get(self, request: Request, eeg_model_name: str) -> Response:
+        eeg_model_klass = get_object_or_404(models.EEGModel, name=eeg_model_name)
+        eeg_channel_klasses = models.EEGChannel.objects.filter(model=eeg_model_klass)
+
+        timeseries = []
+        timesamples = []
+        for eeg_channel_klass in eeg_channel_klasses:
+            eeg_time_series = models.EEGSample.objects.filter(channel=eeg_channel_klass)
+            for eeg_sample in eeg_time_series:
+                timeseries.append(eeg_sample.data)
+                timesamples.append(eeg_sample.timestamp)
+
+        return Response(
+            {
+                "timeseries": timeseries,
+                "timesamples": timesamples
+            },
+            status=status.HTTP_200_OK
+        )
+
+class DashboardEEGListView(APIView):
+    def get(self, request: Request) -> Response:
+        eeg_model_klasses = models.EEGModel.objects.all()
+        eeg_models = []
+        for eeg_model_klass in eeg_model_klasses:
+            eeg_channel_klasses = models.EEGChannel.objects.filter(model=eeg_model_klass)
+
+            timeseries = []
+            timesamples = []
+            for eeg_channel_klass in eeg_channel_klasses:
+                eeg_time_series = models.EEGSample.objects.filter(channel=eeg_channel_klass)
+                for eeg_sample in eeg_time_series:
+                    timeseries.append(eeg_sample.data)
+                    timesamples.append(eeg_sample.timestamp)
+
+            eeg_models.append({
+                "name": eeg_model_klass.name,
+                "timeseries": timeseries,
+                "timesamples": timesamples
+            })
+
+        return Response(data=eeg_models, status=status.HTTP_200_OK)

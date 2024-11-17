@@ -18,11 +18,21 @@ urlpatterns = [
         views.EEGModelCreateView.as_view(),
         name="EEG Create Endpoint"
     ),
-    # ATTENTION
+    # DASHBOARD
     path(
         "dashboard/attention/<str:eeg_model_name>/",
         views.DashboardAttentionView.as_view(),
         name="Attention Processing Endpoint"
+    ),
+    path(
+        "dashboard/eeg/<str:eeg_model_name>/",
+        views.DashboardEEGView.as_view(),
+        name="EEG Read Endpoint"
+    ),
+    path(
+        "dashboard/eeg/",
+        views.DashboardEEGListView.as_view(),
+        name="EEG List Read Endpoint"
     ),
     # DIFFUSER
     path(

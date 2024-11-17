@@ -14,6 +14,8 @@ import { Studio, Diffuser, Login, Dashboard } from './pages';
 import { Header, Footer } from './components/ui';
 import { CssBaseline } from '@mui/material';
 
+import { dashboardLoader } from './services/loaders';
+
 
 /**
  * Layout for the application.
@@ -35,7 +37,7 @@ export const layoutRouter = createBrowserRouter(createRoutesFromElements(
         <Route path="/" element={<Login />} />
         <Route path="/studio" element={<Studio />} />
         <Route path="/diffuser" element={<Diffuser />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} loader={dashboardLoader} />
     </Route>
 ),
 {
