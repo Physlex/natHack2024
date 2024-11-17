@@ -35,6 +35,12 @@ urlpatterns = [
         name="EEG List Read Endpoint"
     ),
     # DIFFUSER
+    # POST endpoint for starting the process
+    path(
+        "diffuser/generate/",
+        views.DiffuserGenerateVideoView.as_view(),
+        name="diffuser-generate-post",
+    ),
     path(
         "diffuser/generate/<str:task_id>/",
         views.DiffuserGenerateVideoView.as_view(),

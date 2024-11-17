@@ -111,39 +111,46 @@ export default function Diffuser(): JSX.Element {
               url1: "https://media.wired.com/photos/5ca648a330f00e47fd82ae77/master/pass/Culture_Matrix_Code_corridor.jpg",
               url2: "https://images.pexels.com/photos/158971/pexels-photo-158971.jpeg",
               url3: "https://cdn.prod.website-files.com/5ca1479b0620587913fd10e6/5caa82d53be19227dd7e7292_IMG_20190407_170000%20Small%20Cropped.jpg",
-            }
+            },
           };
-        // Access the `urls` object
-        const urls = urlData.urls;
-
-        // Array of fetch promises for concurrent calls
-        const fetchTasks = async () => {
-            const taskPromises = Array.from({ length: 5 }).map(() =>
-            fetch("/api/diffuser/generate/", { method: "POST" })
+          
+          // Access the `urls` object and convert it to an array of URL values
+          const urls = Object.values(urlData.urls);
+          
+          // Function to handle concurrent fetch requests
+          const fetchTasks = async () => {
+            const taskPromises = urls.map((url) =>
+              fetch("/api/diffuser/generate/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ image_url: url }), // Pass the URL in the POST body
+              })
                 .then((response) => {
-                if (!response.ok) {
+                  if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
+                  }
+                  return response.json();
                 })
                 .then((responseData) => responseData.task_id) // Extract task_id from response
                 .catch((error) => {
-                console.error("Error fetching task:", error);
-                return null; // Handle error for individual request
+                  console.error("Error fetching task:", error);
+                  return null; // Handle error for individual request
                 })
             );
-        
+          
             // Wait for all fetch calls to resolve
             const taskIds = await Promise.all(taskPromises);
-        
+          
             // Filter out any null results (failed requests)
             const validTaskIds = taskIds.filter((id) => id !== null);
-            
+          
             console.log("Fetched Task IDs:", validTaskIds);
             return validTaskIds;
-        };
-        
+          };
+          
+        // Example usage
         const taskIds = fetchTasks();
+          
 
         const runTask = async (taskId: string) => {
         const pollInterval = setInterval(async () => {
@@ -179,45 +186,45 @@ export default function Diffuser(): JSX.Element {
 
         handleMultipleTasks();
 
-        const response = await fetch("/api/diffuser/generate/", {method: "POST"});
-        if (response.status >= 400) {
-            console.error(`Failed to generate diffusion. Reason: ${response.status}`);
-            window.history.back();
-            return;
-        } else { // Need to wait for video to be created and load.
-            const responseData = await response.json();
-            const taskId = responseData.task_id;
+        // const response = await fetch("/api/diffuser/generate/", {method: "POST"});
+        // if (response.status >= 400) {
+        //     console.error(`Failed to generate diffusion. Reason: ${response.status}`);
+        //     window.history.back();
+        //     return;
+        // } else { // Need to wait for video to be created and load.
+        //     const responseData = await response.json();
+        //     const taskId = responseData.task_id;
             
-            if (taskId != null) {
-                console.log(taskId);
-                // Step 3: Start polling the server every 5 seconds to check for the video_url
-                //setLoading((prevLoading) => !prevLoading);
+        //     if (taskId != null) {
+        //         console.log(taskId);
+        //         // Step 3: Start polling the server every 5 seconds to check for the video_url
+        //         //setLoading((prevLoading) => !prevLoading);
                 
-                const pollInterval = setInterval(async () => {
-                  const statusResponse = await fetch(`/api/diffuser/generate/`, { method: "GET" });
+        //         const pollInterval = setInterval(async () => {
+        //           const statusResponse = await fetch(`/api/diffuser/generate/`, { method: "GET" });
                 
-                  if (statusResponse.status === 200) {
-                    const statusData = await statusResponse.json();
-                    // Check if task_result and videos exist in the response
-                    const videoUrl = statusData.url;
-                    if (videoUrl) {
-                        // Stop polling once the video_url is received
-                        clearInterval(pollInterval);
-                        // Proceed to handle the video URL, e.g., show the video
-                        console.log('Video URL:', videoUrl);
-                        // You can update state here to show the video or enable download
-                        setIsVideo(true); // Assuming this state will render the video
-                        setVideoUrl(videoUrl); // Set the video URL for your component
-                        setDownloadEnabled(true); // Enable download button or other UI
-                    } else {
-                        console.error('No video URL found in the response.');
-                    }
-                  } else {
-                    console.error(`Failed to fetch video status. Reason: ${statusResponse.status}`);
-                  }
-                }, 5000); // 5 seconds interval
-            }
-        }
+        //           if (statusResponse.status === 200) {
+        //             const statusData = await statusResponse.json();
+        //             // Check if task_result and videos exist in the response
+        //             const videoUrl = statusData.url;
+        //             if (videoUrl) {
+        //                 // Stop polling once the video_url is received
+        //                 clearInterval(pollInterval);
+        //                 // Proceed to handle the video URL, e.g., show the video
+        //                 console.log('Video URL:', videoUrl);
+        //                 // You can update state here to show the video or enable download
+        //                 setIsVideo(true); // Assuming this state will render the video
+        //                 setVideoUrl(videoUrl); // Set the video URL for your component
+        //                 setDownloadEnabled(true); // Enable download button or other UI
+        //             } else {
+        //                 console.error('No video URL found in the response.');
+        //             }
+        //           } else {
+        //             console.error(`Failed to fetch video status. Reason: ${statusResponse.status}`);
+        //           }
+        //         }, 5000); // 5 seconds interval
+        //     }
+        // }
 
         // TEMPORARY BELOW!!
         // setLoading((prevLoading) => !prevLoading);

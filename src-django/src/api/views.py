@@ -77,11 +77,16 @@ class DiffuserGenerateVideoView(APIView):
         self.headers = {'Content-Type': 'application/json',
                    'Authorization': f'Bearer {self.authorization}'
                    }
-        # TODO: Add back!! 
         url = 'https://api.klingai.com/v1/videos/image2video'
+        
+        # Extract image_url from the request payload
+        image_url = request.data.get('image_url', None)
+        if not image_url:
+            return Response({"error": "image_url is required."}, status=status.HTTP_400_BAD_REQUEST)
+        
         # Example data for testing
         data = {'model_name': 'kling-v1',
-                'image': 'https://thumbs.dreamstime.com/b/neon-background-wallpaper-futuristic-glowing-lights-cool-backgrounds-blue-white-green-image-generated-use-ai-276345013.jpg',
+                'image': image_url,
             }
         # Send post request
         response = requests.post(url, headers=self.headers, json=data)
