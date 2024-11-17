@@ -132,7 +132,6 @@ export default function Studio(): JSX.Element {
         };
 
         websocket.onmessage = (event: MessageEvent) => {
-            console.log("Message received: ", event.data);
             const frame = JSON.parse(event.data);
             switch (frame.code) {
                 case "META":
@@ -166,6 +165,7 @@ export default function Studio(): JSX.Element {
 
     // onPause handler for the viewport
     const stopEEGStream = () => {
+        console.info("Webocket close event", studioState.websocket, studioState.bucket);
         if (studioState.websocket && studioState.bucket) {
             console.info("Closing websocket...");
             studioState.websocket.send(JSON.stringify({code: "TERM"}));
