@@ -6,6 +6,9 @@ from pydantic import BaseModel
 from typing import List
 import shutil
 
+from DreamDiffusion.code.modelserver import ModelServer
+
+modelserver = ModelServer()
 ddapi = FastAPI()
 ddapi.mount('/generated', StaticFiles(directory="generated", html=True), name="generated")
 
@@ -23,12 +26,11 @@ class EEGData(BaseModel):
 async def gen_img(eegdat: EEGData, request: Request):
     # call the image generation function here
     # return file path
-
+    results = modelserver.infer('data/processed_eeg_data_updated.pth', num_samples=5, ddim_steps=250)
     ft = "%Y-%m-%dT%H-%M-%S"
-    imgpath = "testimg.png"
-    outfilename = f"{datetime.datetime.now().strftime(ft)}.{imgpath.split('.')[-1]}"
+    outfilename = f"{datetime.datetime.now().strftime(ft)}.png"
     outfilepath = os.path.join('generated', outfilename)
-    shutil.copy(imgpath, outfilepath)
+    results.save(outfilepath)
     return {"result": f"{str(request.base_url)}generated/{outfilename}"}
 
 # run with:
