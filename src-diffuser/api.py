@@ -9,7 +9,7 @@ import sys
 sys.path.append('DreamDiffusion/code')
 from DreamDiffusion.code.modelserver import ModelServer
 
-modelserver = ModelServer()
+modelserver = ModelServer("data/checkpoint.pth")
 ddapi = FastAPI()
 ddapi.mount('/generated', StaticFiles(directory="generated", html=True), name="generated")
 
