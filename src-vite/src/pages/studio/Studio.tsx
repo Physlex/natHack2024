@@ -223,9 +223,7 @@ export default function Studio(): JSX.Element {
                                 <EEGNameForm onChange={saveName} />
                             </Stack>
                             { studioState.url &&
-                                <Viewport
-                                    url={studioState.url}
-                                    onPause={stopEEGStream} />
+                                <Viewport url={studioState.url} />
                             }
                             { !studioState.url &&
                                 <BlackSquare>
@@ -252,6 +250,9 @@ export default function Studio(): JSX.Element {
                             startTime={startTime}>
                             <Button id="start-session-button" onClick={startEEGStream}>
                                 Start Session
+                            </Button>
+                            <Button id="start-session-button" onClick={stopEEGStream}>
+                                Stop Session
                             </Button>
                         </ConnectionSidebar>
                     </Paper>

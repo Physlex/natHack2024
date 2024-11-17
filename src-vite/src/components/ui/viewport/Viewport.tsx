@@ -25,7 +25,6 @@ const youtubeViewerStyles = {
  */
 type ViewportParams = {
     url: string;
-    onPause: () => void;
 }
 
 /**
@@ -45,7 +44,7 @@ type ViewportProps = {
 /**
  * @return Viewport component.
  */
-export default function Viewport({ url, onPause }: ViewportParams): JSX.Element {
+export default function Viewport({ url }: ViewportParams): JSX.Element {
     const [viewportState, setViewportState] = useState({
         url: url,
         videoID: "",
@@ -132,7 +131,6 @@ export default function Viewport({ url, onPause }: ViewportParams): JSX.Element 
     const handlePause = async (event: any) => {
         console.info("Pausing video...");
         event.target.pauseVideo();
-        onPause();
     }
 
     return (
