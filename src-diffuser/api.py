@@ -4,8 +4,9 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List
-import shutil
 
+import sys
+sys.path.append('DreamDiffusion/code')
 from DreamDiffusion.code.modelserver import ModelServer
 
 modelserver = ModelServer()
@@ -26,7 +27,8 @@ class EEGData(BaseModel):
 async def gen_img(eegdat: EEGData, request: Request):
     # call the image generation function here
     # return file path
-    results = modelserver.infer('data/processed_eeg_data_updated.pth', num_samples=5, ddim_steps=250)
+    print(os.getcwd())
+    results = modelserver.infer('./eeg-inputs/processed_eeg_data_updated.pth', num_samples=5, ddim_steps=250)
     ft = "%Y-%m-%dT%H-%M-%S"
     outfilename = f"{datetime.datetime.now().strftime(ft)}.png"
     outfilepath = os.path.join('generated', outfilename)

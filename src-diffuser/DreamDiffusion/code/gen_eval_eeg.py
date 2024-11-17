@@ -15,6 +15,7 @@ from dataset import create_EEG_dataset
 from dc_ldm.ldm_for_eeg import eLDM
 
 # update paths
+
 config.root_path = '../data'
 config.pretrain_mbm_path = os.path.join(config.root_path, 'checkpoint-eeg-500.pth')
 config.pretrain_gm_path = os.path.join(config.root_path, 'gm_pretrain')
