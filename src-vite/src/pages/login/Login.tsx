@@ -2,11 +2,16 @@
  * This is the module for the login page.
  */
 
+import { Paper } from '@mui/material';
 
+
+/**
+ * @return Login page.
+ */
 export default function Login(): JSX.Element {
     return (
-        <div id="login-box">
+        <Paper variant="outlined">
             Login Page
-        </div>
+        </Paper>
     );
 }

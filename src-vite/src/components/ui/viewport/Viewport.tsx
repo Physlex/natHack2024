@@ -2,7 +2,7 @@
  * Wrapper for youtube react component.
  */
 
-import { Box } from '@mui/material';
+import { Paper } from '@mui/material';
 import Youtube from 'react-youtube';
 import { useEffect, useState } from 'react';
 
@@ -11,7 +11,6 @@ const youtubeViewerStyles = {
     margin: "0 auto",
     alignItems: "center",
     width: "100%",
-    height: "100%",
     justifyContent: "center",
 };
 
@@ -143,7 +142,7 @@ export default function Viewport({ url, onPlay, onPause }: ViewportParams): JSX.
     }
 
     return (
-        <Box 
+        <Paper
             className="viewport"
             sx={youtubeViewerStyles}>
             <Youtube
@@ -155,6 +154,6 @@ export default function Viewport({ url, onPlay, onPause }: ViewportParams): JSX.
                 onPause={handlePause}
                 >
             </Youtube>
-        </Box>
-    )
+        </Paper>
+    );
 }

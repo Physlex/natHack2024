@@ -6,15 +6,15 @@ from django.db import models
 
 
 class EEGSample(models.Model):
-    has_event = models.BooleanField()  # Determines if the sample is an 'event' type.
-    frame = models.ForeignKey("EEGFrame", on_delete=models.CASCADE)
     data = models.FloatField()
+    timestamp = models.DecimalField(max_digits=20, decimal_places=6)
+    channel = models.ForeignKey("EEGChannel", on_delete=models.CASCADE)
 
 
-class EEGFrame(models.Model):
-    sample_rate = models.FloatField()
+class EEGChannel(models.Model):
+    channel = models.IntegerField()
     model = models.ForeignKey("EEGModel", on_delete=models.CASCADE)
 
 
 class EEGModel(models.Model):
-    name = models.TextField()
+    date = models.DateTimeField(auto_now_add=True)

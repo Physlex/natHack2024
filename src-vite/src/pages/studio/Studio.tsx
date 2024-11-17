@@ -37,6 +37,7 @@ type EEGDataFrame = {
 type StudioProps = {
     websocket: null | WebSocket;
     url: null | string;
+    bucket: null | EEGBucket;
 }
 
 /**
@@ -55,9 +56,14 @@ class EEGBucket {
 
     // Sends the currently collected pool of data to the backend
     async send(): Promise<number> {
+        const eegData = {
+            timeseries: `${this.pool.slice(0, 30)}`,
+            timestamps: `${this.pool[30]}`,
+        };
+
         const response = await fetch("/api/eeg/", {
             method: "POST",
-            body: JSON.stringify(this.pool)
+            body: JSON.stringify(eegData)
         });
 
         if (response.status >= 400) {
@@ -79,15 +85,17 @@ export default function Studio(): JSX.Element {
     const [studioState, setStudioState] = useState({
         websocket: null,
         url: null,
+        bucket: null,
     } as StudioProps);
-    let bucket = new EEGBucket();
 
     // onPlay handler for the viewport
     const startEEGStream = () => {
         let websocket = new WebSocket("ws://localhost:8001");
+        let bucket = new EEGBucket();
 
         setStudioState({
             ...studioState,
+            bucket: bucket,
             websocket: websocket
         });
 
@@ -112,14 +120,16 @@ export default function Studio(): JSX.Element {
         websocket.onclose = (event: CloseEvent) => {
             console.log("Websocket connection close: ", event);
             console.log("Code: ", event.code, "\nReason: ", event.reason);
-            websocket.send(JSON.stringify({code: "TERM"}));
             bucket.send();
         };
     };
 
     // onPause handler for the viewport
     const stopEEGStream = () => {
-        if (studioState.websocket !== null) { studioState.websocket.close(); }
+        if (studioState.websocket !== null) {
+            studioState.websocket.send(JSON.stringify({code: "TERM"}));
+            studioState.websocket.close();
+        }
     };
 
     // Save the url of the url form
@@ -132,7 +142,12 @@ export default function Studio(): JSX.Element {
     }
 
     return (
-        <Box id="studio" sx={{paddingTop: "10px", margin: "0px auto", width: "50%"}} component="div">
+        <Box id="studio" sx={{
+                paddingTop: "10px",
+                margin: "0px auto",
+                height: "70vh",
+                width: "90%"
+            }} component="div">
             <URLForm label={"Video URL"} onSubmit={saveUrl}/>
             { studioState.url &&
                 <Viewport

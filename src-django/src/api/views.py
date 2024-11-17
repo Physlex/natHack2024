@@ -17,22 +17,33 @@ class EEGModelReadView(APIView):
 
         eeg_model_klass = get_object_or_404(models.EEGModel, id=eeg_id)
         eeg_model_serializer = serializers.EEGModelSerializer(eeg_model_klass)
-        if eeg_model_serializer.is_valid():
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        return Response(data=eeg_model_serializer.data, status=status.HTTP_200_OK)
+        return Response(data=eeg_model_serializer, status=status.HTTP_200_OK)
 
 
 class EEGModelCreateView(APIView):
 
     def post(self, request: Request) -> Response:
+        timeseries = request.data['timeseries']
+        timestamps = request.data['timestamps']
+        if (timeseries is None or timestamps is None):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        
+        eeg_model = models.EEGModel.objects.create()
+        samples = []
+        for channel_idx, channel in enumerate(timeseries):
+            eeg_channel = models.EEGChannel.objects.create(
+                model=eeg_model,
+                channel=channel_idx
+            )
+            for sample_idx, sample in enumerate(channel):
+                samples.append(models.EEGSample.objects.create(
+                    data=sample,
+                    timestamp=timestamps[sample_idx],
+                    channel=eeg_channel,
+                ))
 
-        eeg_model_serializer = serializers.EEGModelSerializer(data=request.data)
-        if eeg_model_serializer.is_valid():
-            eeg_model_serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
-
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        models.EEGSample.objects.bulk_create(samples)
+        return Response(status=status.HTTP_201_CREATED)
 
 
 class DiffuserGenerateVideoView(APIView):
