@@ -58,7 +58,7 @@ class EEGBucket {
     async send(): Promise<number> {
         const eegData = {
             timeseries: this.pool.slice(0, 16),
-            timestamps: this.pool[30],
+            timestamps: this.pool[29],
         };
 
         const response = await fetch("/api/eeg/", {
