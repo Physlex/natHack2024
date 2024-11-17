@@ -155,9 +155,8 @@ export default function Studio(): JSX.Element {
         };
 
         websocket.onclose = (event: CloseEvent) => {
-            console.log("Websocket connection close: ", event);
+            console.log("Websocket connection closed: ", event);
             console.log("Code: ", event.code, "\nReason: ", event.reason);
-            bucket.send(studioState.name);
             setStudioState({
                 ...studioState,
                 connectionStatus: "Disconnected",
@@ -167,8 +166,10 @@ export default function Studio(): JSX.Element {
 
     // onPause handler for the viewport
     const stopEEGStream = () => {
-        if (studioState.websocket !== null) {
+        if (studioState.websocket && studioState.bucket) {
+            console.info("Closing websocket...");
             studioState.websocket.send(JSON.stringify({code: "TERM"}));
+            studioState.bucket.send(studioState.name);
             studioState.websocket.close();
         }
     };
@@ -253,7 +254,7 @@ export default function Studio(): JSX.Element {
                             connectionStatus={studioState.connectionStatus}
                             deviceId={studioState.deviceID}
                             serialPort={studioState.serialPort}
-                            port={8000}
+                            port={8001}
                             startTime={startTime}>
                             <Button id="start-session-button" onClick={startEEGStream}>
                                 Start Session
